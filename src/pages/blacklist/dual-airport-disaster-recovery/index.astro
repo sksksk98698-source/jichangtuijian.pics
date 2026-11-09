@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StructuredData from '../../../components/StructuredData.astro';
+import { withBase } from '../../../lib/url';
+import { SITE } from '../../../consts';
+
+const title = '双机场异构冷备份配置实战：如何用按量计费搭建永不失联的容灾网络 — 机场pics';
+const description = '为跨境出海、学术科研与外贸从业者量身定制的高可用网络容灾指南。手把手教你如何用“主力 IEPL 专线 + 备用不限时按量机场”实现故障秒级切换。';
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const absolute = (path: string) => new URL(withBase(path), site).href;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: title,
+    description: description,
+    author: {
+      '@type': 'Organization',
+      name: '机场pics 网络基础设施观测实验室',
+      url: absolute('/'),
+    },
+    datePublished: '2026-03-18T10:00:00+08:00',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: absolute('/') },
+      { '@type': 'ListItem', position: 2, name: '跑路预警黑榜矩阵', item: absolute('/blacklist/') },
+      { '@type': 'ListItem', position: 3, name: '双机场异构冷备份配置实战', item: absolute('/blacklist/dual-airport-disaster-recovery/') },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <StructuredData slot="head" schema={schema} />
+
+  <article class="prose section" style="max-width: 860px; margin: 0 auto; padding-top: 2.5rem; line-height: 1.8;">
+    <p class="eyebrow" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-accent, #c95135); margin-bottom: 0.5rem;">
+      <a href="/blacklist/" style="color: inherit; text-decoration: underline;">&larr; 返回跑路预警专题矩阵</a> · 高可用架构专栏
+    </p>
+    <h1 style="font-size: 2.2rem; line-height: 1.3; font-weight: 800; margin-bottom: 1.2rem;">
+      双机场异构冷备份配置实战：如何用按量计费搭建永不失联的容灾网络
+    </h1>
+    <div style="font-size: 0.88rem; color: var(--color-muted); margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+      发布日期：2026年3月 · 作者：机场pics 架构组 · 适用人群：跨境电商 / 学术科研 / 深度 AI 生产力 / 远程办公
+    </div>
+
+    <h2>一、为什么严肃生产力用户绝不能“单挂一家机场”？</h2>
+    <p>
+      在大型互联网企业的基础设施架构设计中，有一个被奉为铁律的准则：<strong>消除单点故障（Single Point of Failure，SPOF）</strong>。
+      然而在日常使用境外网络加速服务的用户群体中，绝大多数人却长期将所有的跨国连接押注在单一机场供应商身上。
+    </p>
+    <p>
+      不论一家机场的口碑在社群中多么卓越、技术实力多么雄厚，它都始终面临着不可抗力的技术与外部风险：
+    </p>
+    <ul>
+      <li><strong>海底光缆与陆缆物理切断：</strong>亚太地区地质活跃，海缆因地震、轮船抛锚而切断的事故时有发生，修复周期往往长达数周；</li>
+      <li><strong>国内入口机房断网割接：</strong>运营商因政策合规检查或定期骨干网升级，会对整栋 IDC 机房临时拔线关机；</li>
+      <li><strong>大规模分布式拒绝服务攻击（DDoS）：</strong>竞争对手在关键时刻对主干域名发起数百 Gbps 的流量冲击，造成全网入口假死。</li>
+    </ul>
+    <p>
+      如果你的日常工作极度依赖海外网络（如跨国 Zoom 视频会议、生产环境代码提交、海外金融下单、紧急学术查重），一旦网络意外中断哪怕 30 分钟，所造成的商业信誉和经济损失，远远超过购买备用方案的那点微小支出。
+    </p>
+
+    <h2>二、双机场异构冷备份的黄金组合公式</h2>
+    <p>
+      很多用户排斥备用方案的核心顾虑在于：“我平时根本用不完流量，每月买两份月付套餐纯粹是浪费钱。”
+      针对这一痛点，我们经过长期实测总结出了成本极低、冗余度拉满的<strong>“主力专线月付 + 备用不限时按量计费”</strong>黄金异构模型：
+    </p>
+    <div style="background: var(--color-surface, #fcfcfb); border: 1px solid var(--color-border); border-radius: 6px; padding: 1.25rem; font-size: 0.95rem; line-height: 1.7; margin-bottom: 1.5rem;">
+      <strong>1. 主力方案（承担 90% 日常流量消耗）：</strong>选择一家高品质的 IEPL 内网专线品牌（如 <strong>光速云</strong> 或 <strong>暮光加速</strong>，月付仅约 8~16 元）。由于是月付，晚高峰提供秒开 4K 影音、零丢包和超低延迟，随时可根据当月体验决定是否续费；<br /><br />
+      <strong>2. 备用方案（承担 10% 突发应急容灾）：</strong>购买一家<strong>无过期时间、按量计费（Pay As You Go）</strong>的稳定品牌（如 <strong>星岛梦</strong>，15 元购买 100GB 永久有效流量包）。将其导入客户端后，平时完全不使用就不扣除一分钱，流量永远不归零清空，安稳待命。
+    </div>
+
+    <h2>三、协议异构策略：防范全协议定向阻断</h2>
+    <p>
+      搭建容灾网络时，切忌主力机场与备用机场采用完全相同的单一协议栈。
+      例如：如果你的主力专线采用的是 <strong>Shadowsocks</strong> 协议，那么你的备用按量机场最好选用支持 <strong>Hysteria2</strong>、<strong>VLESS Reality</strong> 或 <strong>Trojan</strong> 的品牌。
+      当特殊敏感时期公网针对某种协议特征展开针对性封锁时，基于 UDP 改造的 Hysteria2 或伪装成真实合法网站的 VLESS Reality 仍能强行穿透阻碍，确保你的核心通信通道绝对通畅。
+    </p>
+
+    <h2>四、在 Clash Verge Rev 中配置 Fallback 自动故障转移</h2>
+    <p>
+      通过现代代理内核的策略组编排功能，用户完全可以做到<strong>“故障发生时 0 秒无感自动切换”</strong>，无需手动打开客户端手忙脚乱地排查换节点：
+    </p>
+    <pre><code># 在 Clash 自定义配置合并规则中添加以下 Fallback 策略组
+proxy-groups:
+  - name: "🛡️ 高可用自动容灾组"
+    type: fallback
+    url: "https://www.gstatic.com/generate_204"
+    interval: 180      # 每 180 秒执行一次健康探测
+    tolerance: 50      # 容差范围
+    proxies:
+      - "光速云-香港01[IEPL专线]"    # 第一优先级：主力专线
+      - "星岛梦-香港01[按量备用]"    # 第二优先级：备用冷备
+      - "微风网络-日本01[BGP中转]"   # 第三优先级：平价保底
+
+rules:
+  # 将日常核心流量指向容灾组
+  - DOMAIN-SUFFIX,google.com,🛡️ 高可用自动容灾组
+  - DOMAIN-SUFFIX,github.com,🛡️ 高可用自动容灾组
+  - MATCH,🛡️ 高可用自动容灾组</code></pre>
+
+    <h2>五、经济账精算：为什么双机场反而比年付单机场更省钱？</h2>
+    <p>
+      许多用户被不良机场诱导购买了“99 元包三年”的大套餐，结果不到 4 个月机场跑路，99 元直接打了水漂，不得不重新买新套餐，实际年均支出超过 200 元。
+    </p>
+    <p>
+      而采用“双机场容灾法”：
+    </p>
+    <ul>
+      <li>主力专线月付 8 元 &times; 12 个月 = 96 元；</li>
+      <li>备用按量包 15 元（买一次往往能用 1~2 年），平摊每年约 10 元；</li>
+      <li><strong>全年总硬性支出仅约 106 元</strong>，不仅花费与年付基本持平，更换来了<strong>100% 杜绝失联、零跑路本金损失、故障秒级自愈</strong>的企业级网络可靠性体验。</li>
+    </ul>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem;">
+      <a href="/works/guangsu/" class="button action-btn" style="text-decoration: none; color: #fff !important; font-size: 0.85rem; padding: 0.45rem 1rem;">查看光速云主力专线评测 &rarr;</a>
+      <a href="/works/xingdaomeng/" class="button promo-btn" style="text-decoration: none; font-size: 0.85rem; padding: 0.45rem 1rem;">查看星岛梦按量备用评测 &rarr;</a>
+      <a href="/blacklist/" class="button" style="text-decoration: none; background: transparent; border: 1px solid var(--color-border); color: var(--color-fg); font-size: 0.85rem; padding: 0.45rem 1rem;">返回跑路预警专题</a>
+    </div>
+  </article>
+</BaseLayout>

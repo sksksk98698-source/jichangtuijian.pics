@@ -40,7 +40,7 @@ const pageTitle =
     : t('tag.titlePaged', { tag, page: page.currentPage });
 ---
 
-<BaseLayout title={pageTitle} description={t('tag.description', { tag, site: SITE.title })}>
+<BaseLayout title={pageTitle} description={t('tag.description', { tag, site: SITE.title })} noindex={true}>
   <section class="page-head section">
     <p class="eyebrow">{t('tag.eyebrow')}</p>
     <h1>{tag}</h1>

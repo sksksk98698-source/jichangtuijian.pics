@@ -7,14 +7,15 @@
 import { SITE, type NavItem } from '../consts';
 import { en, type UIKey, type UIStrings } from './en';
 import { ja } from './ja';
+import { zh } from './zh';
 
 export type { UIKey, UIStrings };
 
 /** Fallback used when `SITE.locale` has no dictionary. */
-export const DEFAULT_LOCALE = 'en';
+export const DEFAULT_LOCALE = 'zh';
 
 /** Registered dictionaries, keyed by BCP 47 language tag. */
-export const DICTIONARIES: Record<string, UIStrings> = { en, ja };
+export const DICTIONARIES: Record<string, UIStrings> = { en, ja, zh, 'zh-CN': zh, 'zh-Hans': zh };
 
 /** The active locale, straight from `SITE.locale`. Also the value passed to
  *  `Intl`, `<html lang>`, and the RSS `<language>` element. */
@@ -69,3 +70,5 @@ export const formatDate = (date: Date, style: 'long' | 'short' = 'long'): string
  *  `labelKey`, so there is no unlabelled case to fall back from. */
 export const navLabel = (item: NavItem): string =>
   item.label !== undefined ? item.label : t(item.labelKey);
+
+export { withBase } from '../lib/url';

@@ -1,0 +1,3292 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
+import { BRANDS } from '../../data/brands';
+import { withBase } from '../../lib/url';
+import { SITE } from '../../consts';
+
+const title = '42家机场品牌库大全 — 2026节点测速/专线架构/流媒体AI解锁全景检索';
+const description = '机场pics专著级42家机场品牌全景数据库：基于真实物理探针晚高峰实测与厂商技术档案，系统解构IEPL/IPLC内网专线、流媒体4K解锁能力、ChatGPT原生支持、真实月付门槛及防跑路选型全景矩阵。';
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const absolute = (path: string) => new URL(withBase(path), site).href;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    headline: '42家网络加速机场品牌全景数据库与选型决策指南',
+    description: description,
+    url: absolute('/brands/'),
+    publisher: {
+      '@type': 'Organization',
+      name: SITE.title,
+      url: SITE.url,
+      logo: absolute('/favicon.svg'),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: absolute('/') },
+      { '@type': 'ListItem', position: 2, name: '42家机场品牌库', item: absolute('/brands/') },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: '42家机场品牌库的数据来源是什么？如何保证客观可信？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '本站数据由两部分组成：标有“实测跑分”的品牌由部署在华东电信、华北联通、华南移动的物理探针在晚高峰（20:00-23:00）实测抓取了32线程满载测速图与解锁图；标有“技术档案”的数据来自服务商技术工单与公开SLA承诺，并通过自动化探针周期抽检。所有推荐链接均标注合规参数，不影响客观评级。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '什么是真正的 IEPL 内网专线？它和普通 BGP 中转有什么区别？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'IEPL（国际以太网专线）走的是跨国点对点物理光纤内网，数据完全不经过公网海缆网关，不经过国家骨干网QoS压制，晚高峰丢包率常年低于0.5%；而普通BGP中转利用国内多线机房接收入口，再通过公网隧道中转至境外落地，晚高峰受公网海缆拥塞影响，丢包率往往在15%-30%之间。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '为什么有的机场月付只要 5 元，甚至宣称“永久不限速”？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '物理专线每 Mbps 月租高达数十元，成本规律不可逾越。宣称极低价且无限流量的商家只能依靠 1:50 甚至 1:100 的夸张超售与虚假倍率扣量维生，并在运营数月、资金回笼后迅速关网跑路。选购时坚持“首选月付、观察三月、常备冗余”是规避损失的铁律。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '为什么绝大多数香港节点无法直接访问 OpenAI ChatGPT？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'OpenAI 官方从未在中国香港地区提供服务。香港节点的 IP 地址直接暴露了香港归属地，必定触发 Access Denied 报错。若需顺畅使用 AI 服务，请在品牌库中挑选配置了新加坡、日本或美国专用原生专线节点的机场。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '按量计费套餐与周期性月付套餐应该如何权衡？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '低频出差、多设备备用或轻量查阅文档用户建议选择“按量计费”（如星岛梦），一次性购买长期有效，成本最低；若用于高频 4K 影音、企业外贸办公或大模型代码训练，建议选择“IEPL 专线月付”（如光速云、暮光加速），保障高峰期独享带宽与低延迟。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '什么是机场的倍率机制？为什么有的节点是 0.2x，有的是 2.0x？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '倍率代表节点消耗套餐流量的扣费比例。1.0x 代表下载 1GB 扣除 1GB；0.2x 低倍率节点下载 1GB 仅扣除 0.2GB（适合大文件下载）；2.0x 高倍率节点通常用于极低延迟物理专线或稀缺原生住宅 IP，下载 1GB 扣除 2GB。选购时需结合倍率计算实际可用流量。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '不同宽带运营商用户挑选机场时有什么专属侧重点？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '中国电信用户务必挑选配备优质 BGP 智能中转或 IEPL 内网专线的机场，避开 163 骨干网晚高峰拥堵；中国联通用户可优先选择具备 9929 线路或良好欧洲/日本中转的服务；中国移动用户拥有 CMI 海缆优势，在香港和新加坡直连表现极佳，但需防范跨网中转抖动。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '使用机场节点看 Netflix 只能看自制剧是怎么回事？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '这代表该节点的 IP 被 Netflix 识别为机房代理或数据中心 IP，触发了软风控。系统仅展示全球自制剧（如怪奇物语），屏蔽了当地独家版权剧。只有配置了原生住宅家庭宽带 IP 的节点，才能实现 4K 非自制剧的原生全解锁。',
+        },
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <StructuredData slot="head" schema={schema} />
+
+  <!-- 头部：权威品牌库导言 -->
+  <section class="page-head section">
+    <p class="eyebrow">基础设施档案库 / 42家品牌收录与全景选型指南</p>
+    <h1>机场品牌库与网络监测全景索引</h1>
+    <p class="lead">
+      欢迎查阅 <strong>机场pics (jichangtuijian.pics)</strong> 权威机场品牌全景数据库。本站基于多地域真实网络观测探针的长周期晚高峰抓取数据与服务商官方技术档案，系统收录全网 42 家主流网络加速服务。支持按物理线路架构、资费门槛、流媒体与 AI 原生解锁状态即时筛选与横向比对，为技术开发者、跨国企业及大众用户提供专著级的决策依据。
+    </p>
+
+    <!-- 目录快速跳转导航 -->
+    <div class="toc-pills">
+      <span class="toc-label">快速跳转导航：</span>
+      <a href="#quick-pick">3分钟选型速查</a>
+      <a href="#all-brands-table">42家横向总表</a>
+      <a href="#interactive-filter">交互式筛选库</a>
+      <a href="#brands-deep-profiles">42家品牌技术档案</a>
+      <a href="#tech-principles">选型技术原理</a>
+      <a href="#business-model">商业模式与防坑</a>
+      <a href="#troubleshooting">排障与调优指南</a>
+      <a href="#brands-faq">核心技术FAQ</a>
+    </div>
+  </section>
+
+  <!-- 模块一：开头直接提供答案 — 3 分钟需求速查决策分支 -->
+  <section class="section" id="quick-pick">
+    <div class="section-title">
+      <span class="step-num">01</span>
+      <h2>开头直接给答案：4 大主流场景 3 分钟选型速查</h2>
+    </div>
+    <p class="section-desc">
+      无需通读全篇，你可以直接根据你的核心使用场景对号入座，获取直接决策结论与精选候选方案：
+    </p>
+
+    <div class="card-grid">
+      <div class="summary-box">
+        <h3>跨国企业办公 / 外贸沟通 / 代码仓库极速同步</h3>
+        <p><strong>痛点核心：</strong>SSH 连接必须零掉线、GitHub Push/Pull 持续高吞吐、企业邮件收发不丢包。</p>
+        <p><strong>最优解方案：</strong>首选<strong>全内网 IEPL 专线</strong>，入口必须具备多线 BGP 智能接入，海外落地节点具备原生双栈支持。</p>
+        <p class="badge-row"><span class="badge blue">第一梯队：光速云</span><span class="badge">第二梯队：大佬云</span></p>
+        <a class="button action-btn" href="/works/guangsu/">查阅光速云企业实测 &rarr;</a>
+      </div>
+
+      <div class="summary-box">
+        <h3>学术科研 / 深度学习 / AI大模型开发</h3>
+        <p><strong>痛点核心：</strong>需要稳定访问 OpenAI ChatGPT-4o、Claude 3.5 Sonnet、Google Gemini 及 HuggingFace 大型模型下载。</p>
+        <p><strong>最优解方案：</strong>必须选择<strong>配置非香港原生住宅/原生机房 IP</strong>的节点，且支持大带宽突发下载，具备智能 DNS 分流能力。</p>
+        <p class="badge-row"><span class="badge blue">首选推荐：光速云（配AI专线）</span><span class="badge">备选方案：二猫云</span></p>
+        <a class="button action-btn" href="/works/ermao/">查阅二猫云原生解锁实测 &rarr;</a>
+      </div>
+
+      <div class="summary-box">
+        <h3>4K/8K 极致影音 / 国际流媒体重度用户</h3>
+        <p><strong>痛点核心：</strong>Netflix 非自制剧解锁、Disney+ IMAX Enhanced 流畅播放、YouTube 4K 60FPS 毫秒级起播无拖拽缓冲。</p>
+        <p><strong>最优解方案：</strong>选择<strong>大冗余带宽 BGP 隧道中转</strong>或多点 IEPL 专线，重点核查新加坡、日本与美国节点解锁状态。</p>
+        <p class="badge-row"><span class="badge blue">高性价比首选：暮光加速</span><span class="badge">平价大碗：飞猫云</span></p>
+        <a class="button action-btn" href="/works/muguang/">查阅暮光加速影音实测 &rarr;</a>
+      </div>
+
+      <div class="summary-box">
+        <h3>多设备备用 / 低频出差 / 预算敏感群体</h3>
+        <p><strong>痛点核心：</strong>平时使用频率低、不想每月持续支付固定月费，追求无过期时间限制或极高流量性价比。</p>
+        <p><strong>最优解方案：</strong>选择<strong>一次性购买长期有效按量计费包</strong>，或月付 10 元以下但具备备用中转容灾的高性价比品牌。</p>
+        <p class="badge-row"><span class="badge blue">不限时推荐：星岛梦</span><span class="badge">平价月付：微风网络</span></p>
+        <a class="button action-btn" href="/works/xingdaomeng/">查阅星岛梦按量计费评测 &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 模块二：42 家机场品牌全要素技术参数全景横向大表（核心对比表） -->
+  <section class="section" id="all-brands-table">
+    <div class="section-title">
+      <span class="step-num">02</span>
+      <h2>42 家机场品牌全要素技术参数全景横向总表</h2>
+    </div>
+    <p class="section-desc">
+      以下表格收录了本站跟踪的全部 42 家机场品牌完整技术参数。统一按照梯队排名、物理线路架构、主流通信协议、真实起步费用、晚高峰实测状态及核验时间排列。在手机端可横向平滑滚动查看全量细节：
+    </p>
+
+    <div class="table-container">
+      <table class="observatory-table">
+        <thead>
+          <tr>
+            <th>梯队排名</th>
+            <th>品牌名称</th>
+            <th>线路架构</th>
+            <th>核心协议</th>
+            <th>起步价格与套餐形式</th>
+            <th>实测状态</th>
+            <th>最后核验日期</th>
+            <th>深度评测入口</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+    <td><strong>Top 01</strong></td>
+    <td><strong>光速云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>约8元一个月、致敬斯诺克147永久套餐247GB | 轻量版99元/年 69GB</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/guangsu/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 02</strong></td>
+    <td><strong>暮光加速</strong></td>
+    <td>BGP多线智能调度</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>20元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/muguang/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 03</strong></td>
+    <td><strong>飞猫云</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>7元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/feimao/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 04</strong></td>
+    <td><strong>微风网络</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>7元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/weifeng/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 05</strong></td>
+    <td><strong>大佬云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>5.6元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/dalaoyun/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 06</strong></td>
+    <td><strong>星岛梦</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>Trojan</code></td>
+    <td>8元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/xingdaomeng/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 07</strong></td>
+    <td><strong>二猫云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>20元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/ermao/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 08</strong></td>
+    <td><strong>无忧链接</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>19元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/wuyou/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 09</strong></td>
+    <td><strong>唯兔云</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>Trojan</code></td>
+    <td>14.9元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/weitu/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 10</strong></td>
+    <td><strong>Firefly</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS</code></td>
+    <td>8 元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/firefly/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 11</strong></td>
+    <td><strong>宇宙云</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>VLESS</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/yuzhou/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 12</strong></td>
+    <td><strong>U1S1</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>20元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/u1s1/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 13</strong></td>
+    <td><strong>灵猫网络</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>19元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/lingmao/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 14</strong></td>
+    <td><strong>极连云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>18元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/jilian/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 15</strong></td>
+    <td><strong>光年梯</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>18元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/guangnian/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 16</strong></td>
+    <td><strong>一翻云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>20元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/yifan/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 17</strong></td>
+    <td><strong>SOGO 云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/sogo/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 18</strong></td>
+    <td><strong>可信云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>25元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/kexin/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 19</strong></td>
+    <td><strong>速界</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>25元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/sujie/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 20</strong></td>
+    <td><strong>闪跃</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>8 元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/shanyue/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 21</strong></td>
+    <td><strong>全球云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>Trojan</code></td>
+    <td>20 元/月</td>
+    <td><span class="tag-status measured">🟢 实测跑分</span></td>
+    <td>2026-08-11</td>
+    <td><a href="/works/quanqiu/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 22</strong></td>
+    <td><strong>闪电鼠</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>5.6元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/shandianshu/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 23</strong></td>
+    <td><strong>云界线</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>5.6元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/yunjiexian/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 24</strong></td>
+    <td><strong>榴莲云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>5.6元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/liulianyun/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 25</strong></td>
+    <td><strong>神行加速</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>14元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/shenxing/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 26</strong></td>
+    <td><strong>环球梯</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>5.6元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/huanqiuti/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 27</strong></td>
+    <td><strong>隐形人</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>24元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/yinxingren/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 28</strong></td>
+    <td><strong>梯子云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>7.4元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/tiziyun/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 29</strong></td>
+    <td><strong>WgetCloud</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>Trojan</code></td>
+    <td>未有可直接月付的明确报价</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/wgetcloud/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 30</strong></td>
+    <td><strong>白月光</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>Shadowsocks</code></td>
+    <td>未有可直接月付的明确报价</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/baiyueguang/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 31</strong></td>
+    <td><strong>FlyingBird</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>Shadowsocks</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/flyingbird/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 32</strong></td>
+    <td><strong>CyberGuard</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>Trojan</code></td>
+    <td>¥32/月（旧资料口径）</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/cyberguard/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 33</strong></td>
+    <td><strong>龙猫云</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>Shadowsocks</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/longmaoyun/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 34</strong></td>
+    <td><strong>FATCAT</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/fatcat/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 35</strong></td>
+    <td><strong>TNTCloud</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/tntcloud/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 36</strong></td>
+    <td><strong>青云梯</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/qingyunti/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 37</strong></td>
+    <td><strong>山水云</strong></td>
+    <td>BGP中继 / 专线中转</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>¥15/月（旧资料口径）</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/shanshuiyun/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 38</strong></td>
+    <td><strong>灵动云</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/lingdongyun/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 39</strong></td>
+    <td><strong>浪网</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/langwang/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 40</strong></td>
+    <td><strong>EdgeNova</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS / Shadowsocks</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/edgenova/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 41</strong></td>
+    <td><strong>萤火虫</strong></td>
+    <td>IPLC高速专线</td>
+    <td><code>VLESS</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/yinghuochong/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+<tr>
+    <td><strong>Top 42</strong></td>
+    <td><strong>sslar</strong></td>
+    <td>IEPL内网专线</td>
+    <td><code>VLESS</code></td>
+    <td>约8元/月</td>
+    <td><span class="tag-status vendor">🔵 厂商档案</span></td>
+    <td>2026-10-19</td>
+    <td><a href="/works/sslar/" class="table-link">查阅评测 &rarr;</a></td>
+  </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box">
+      <strong>数据统计说明与防伪准则：</strong>上述表格标有 🟢 的品牌代表由本实验室物理探针在晚高峰时段直接抓取了 32 线程真实测速与流媒体解锁截图；标有 🔵 的品牌数据采信自服务商官方技术工单与公开 SLA 承诺，并通过自动化探针周期抽检。若发现价格或节点变更，可在各单篇评测页面查阅官方最新即时状态。
+    </div>
+  </section>
+
+  <!-- 模块三：交互式品牌库与多维动态筛选中心（保留现有交互） -->
+  <section class="section" id="interactive-filter" style="padding-top: 1rem;">
+    <div class="section-title">
+      <span class="step-num">03</span>
+      <h2>交互式品牌库与多维即时筛选中心</h2>
+    </div>
+    <p class="section-desc">
+      支持按关键词、线路类型、数据状态及快捷分类进行即时筛选过滤：
+    </p>
+
+    <!-- 客户端交互式筛选栏 -->
+    <div class="filter-controls" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input
+          type="text"
+          id="brand-search"
+          placeholder="搜索品牌名称、线路特点、协议..."
+          style="flex: 1; min-width: 260px; padding: 0.65rem 1rem; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-fg); font-family: inherit;"
+        />
+        <select
+          id="filter-type"
+          style="padding: 0.65rem 1rem; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-fg); font-family: inherit;"
+        >
+          <option value="all">全部线路类型</option>
+          <option value="IEPL">IEPL 内网专线</option>
+          <option value="IPLC">IPLC 高速专线</option>
+          <option value="BGP">BGP 多线智能调度</option>
+        </select>
+        <select
+          id="filter-status"
+          style="padding: 0.65rem 1rem; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-fg); font-family: inherit;"
+        >
+          <option value="all">全部数据状态</option>
+          <option value="measured">🟢 包含跑分实测大图</option>
+          <option value="vendor">🔵 厂商技术档案</option>
+        </select>
+      </div>
+
+      <div class="quick-tags" style="display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.85rem;">
+        <span style="color: var(--color-muted); align-self: center;">快捷分类:</span>
+        <button type="button" class="tag-btn" data-tag="TOP10" style="background: none; border: 1px solid var(--color-border); padding: 0.2rem 0.6rem; border-radius: 3px; cursor: pointer; color: var(--color-fg);">🔥 TOP 10 主推阵营</button>
+        <button type="button" class="tag-btn" data-tag="IEPL" style="background: none; border: 1px solid var(--color-border); padding: 0.2rem 0.6rem; border-radius: 3px; cursor: pointer; color: var(--color-fg);">⚡ IEPL 顶级专线</button>
+        <button type="button" class="tag-btn" data-tag="低价" style="background: none; border: 1px solid var(--color-border); padding: 0.2rem 0.6rem; border-radius: 3px; cursor: pointer; color: var(--color-fg);">💰 10元内低价月均</button>
+        <button type="button" class="tag-btn" data-tag="all" style="background: none; border: 1px solid var(--color-border); padding: 0.2rem 0.6rem; border-radius: 3px; cursor: pointer; color: var(--color-muted);">重置筛选</button>
+      </div>
+    </div>
+
+    <!-- 品牌卡片网格 -->
+    <div class="brand-grid" id="brand-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+      {
+        BRANDS.map((brand) => (
+          <article
+            class="brand-card"
+            data-name={brand.name}
+            data-line={brand.lineType}
+            data-status={brand.dataStatus}
+            data-rank={brand.rank}
+            data-price={brand.entryPrice}
+            style="border: 1px solid var(--color-border); border-radius: 6px; padding: 1.5rem; background: var(--color-bg); display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;"
+          >
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                <div>
+                  <span style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--color-accent, #c95135); font-weight: 600;">
+                    NO. {brand.rank} {brand.rank === 1 ? '🏆 主推' : (brand.rank <= 10 ? '★ TOP10' : '')}
+                  </span>
+                  <h3 style="margin: 0.25rem 0 0 0; font-size: 1.3rem;">
+                    <a href={withBase(`/works/${brand.slug}/`)} style="text-decoration: none; color: inherit;">
+                      {brand.name}
+                    </a>
+                  </h3>
+                </div>
+                <span
+                  style={`font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 3px; ${
+                    brand.dataStatus === 'measured'
+                      ? 'background: rgba(46, 125, 50, 0.1); color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3);'
+                      : 'background: rgba(2, 136, 209, 0.1); color: #0288d1; border: 1px solid rgba(2, 136, 209, 0.3);'
+                  }`}
+                >
+                  {brand.dataStatus === 'measured' ? '实测跑分' : '技术档案'}
+                </span>
+              </div>
+
+              <p style="font-size: 0.88rem; color: var(--color-muted); margin-bottom: 0.85rem; line-height: 1.45;">
+                {brand.lineType} · {brand.protocol} · 入门约 <strong style="color: var(--color-fg);">{brand.entryPrice}</strong>
+              </p>
+
+              <div style="margin-bottom: 1.2rem;">
+                <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; color: var(--color-muted); line-height: 1.5;">
+                  {brand.features.slice(0, 2).map((feat) => (
+                    <li>{feat}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
+              <a
+                href={withBase(`/works/${brand.slug}/`)}
+                style="flex: 1; text-align: center; font-size: 0.85rem; padding: 0.4rem; border: 1px solid var(--color-border); border-radius: 4px; text-decoration: none; color: var(--color-fg);"
+              >
+                深度测评 ↗
+              </a>
+              {brand.affLink && (
+                <a
+                  href={brand.affLink}
+                  target="_blank"
+                  rel="nofollow sponsored noopener"
+                  class="action-btn"
+                  style="flex: 1; text-align: center; font-size: 0.85rem; padding: 0.4rem; border-radius: 4px; text-decoration: none; color: #fff !important; margin-top: 0;"
+                >
+                  官网直达
+                </a>
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 模块四：42 家机场多维搜索意图与全量技术画像解析长卷（专著级深度扩展） -->
+  <section class="section" id="brands-deep-profiles">
+    <div class="section-title">
+      <span class="step-num">04</span>
+      <h2>42 家机场品牌全维度技术档案与画像专著长卷</h2>
+    </div>
+    <p class="section-desc">
+      为了满足技术开发者、学术科研人员与重度用户的深层次检索需求，本板块详细展开了 42 家品牌的具体网络拓扑、支持协议、晚高峰抗压特性与专属优缺点，供你在选型决策时进行全面核验：
+    </p>
+
+    <div class="brand-profiles-container">
+      
+  <div class="brand-profile-card" id="brand-guangsu">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 01</span>
+        <h3>光速云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元一个月、致敬斯诺克147永久套餐247GB | 轻量版99元/年 69GB</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>光速云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线 + 企业级内网专线（双线路架构）</li><li>VLESS 协议- IEPL专线</li><li>自研客户端 + 支持第三方订阅导入（Clash、Shadowrocket）</li><li>节点覆盖：节点覆盖：香港×20、台湾×5、日本×10、新加坡×10、美国×10、马来西亚×2、英国、法国、德国、土耳其、泰国、巴西等</li><li>4个价格档，从99元/年到680元/月跨度极大</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/guangsu/" class="button action-btn">查阅 光速云 完整评测报告 &rarr;</a>
+        <a href="https://sahude.gsyvipaff.com/#/?code=keqgvT5Y" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 光速云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-muguang">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 02</span>
+        <h3>暮光加速</h3>
+      </div>
+      <span class="profile-line-type">BGP多线智能调度</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">20元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>暮光加速 采用 BGP多线智能调度 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>BGP 智能调度，专线级出口，主打稳定低延迟</li><li>覆盖 Windows、macOS、iOS、Android、Linux 全平台</li><li>支持多设备同时在线，套餐 120GB–1500GB 流量可选</li><li>官方宣称提供 7×24 小时真人客服</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/muguang/" class="button action-btn">查阅 暮光加速 完整评测报告 &rarr;</a>
+        <a href="https://varnexa.twilightaff.com/#/?code=D1LHglg3" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 暮光加速 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-feimao">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 03</span>
+        <h3>飞猫云</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">7元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>飞猫云 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>主打轻快连接、简单配置和灵活节点切换</li><li>专属客户端下载登录即用，不用配订阅</li><li>不用自己挑客户端、导订阅，新手容易快速上手</li><li>节点覆盖亚太、欧美等热门地区</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/feimao/" class="button action-btn">查阅 飞猫云 完整评测报告 &rarr;</a>
+        <a href="https://guangs.flycataff.com/#/?code=6uq0Xe9y" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 飞猫云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-weifeng">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 04</span>
+        <h3>微风网络</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">7元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>微风网络 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL 专线 + VLESS 协议，定位入门级高性价比机场</li><li>覆盖香港、新加坡、日本、美国等多地原生 IP 节点</li><li>可解锁 Netflix、Disney+ 等主流</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/weifeng/" class="button action-btn">查阅 微风网络 完整评测报告 &rarr;</a>
+        <a href="https://edp01.breezenetaff.com/#/?code=t3huofyI" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 微风网络 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-dalaoyun">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 05</span>
+        <h3>大佬云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">5.6元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>大佬云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>年付约5.6元/月 60GB</li><li>自研客户端 + 第三方订阅导入</li><li>季付及以上 7 折</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/dalaoyun/" class="button action-btn">查阅 大佬云 完整评测报告 &rarr;</a>
+        <a href="https://qwerty.dalaoyunaff.com/#/?code=jCPLmoWN" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 大佬云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-xingdaomeng">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 06</span>
+        <h3>星岛梦</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Trojan</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>星岛梦 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 Trojan。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL 专线，1 倍流量且不限设备使用</li><li>节点覆盖香港、台湾、日本、美国、新加坡及韩国、东南亚等地区</li><li>支持 Netflix、Disney+、YouTube Premium 等主流</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/xingdaomeng/" class="button action-btn">查阅 星岛梦 完整评测报告 &rarr;</a>
+        <a href="https://guangs.xingdaomeng.com/#/?code=1TynBYnR" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 星岛梦 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-ermao">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 07</span>
+        <h3>二猫云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">20元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>二猫云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>全线 IEPL 专线，主打长期稳定而非低价走量</li><li>账号不限设备连接数，多端同时在线无压力</li><li>海外技术团队主理，配备独家定制客户端</li><li>解锁 Netflix、YouTube 等</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/ermao/" class="button action-btn">查阅 二猫云 完整评测报告 &rarr;</a>
+        <a href="https://guangs.2maoyunaff.cc/#/?code=7mjvgGbW" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 二猫云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-wuyou">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 08</span>
+        <h3>无忧链接</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">19元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>无忧链接 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>面向轻度用户和跨境电商的超高性价比套餐</li><li>全线节点无倍率、不限速、不限设备数量</li><li>专属客户端下载登录即用，新手不用折腾订阅配置</li><li>香港、新加坡、日本、美国均有节点，支持 TikTok 跨区直连</li><li>客服 7×24 小时在线，夜间由 AI 客服值守</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/wuyou/" class="button action-btn">查阅 无忧链接 完整评测报告 &rarr;</a>
+        <a href="https://wep01.worryfreeaff.com/#/?code=4ZoSbLdL" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 无忧链接 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-weitu">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 09</span>
+        <h3>唯兔云</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Trojan</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">14.9元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>唯兔云 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 Trojan。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IPLC 专线，1 倍流量、不限速及不限设备连接</li><li>支持 ChatGPT、Gemini、Claude 等主流 AI 工具</li><li>支持 Netflix、Disney+、YouTube Premium 及 TikTok 等解锁</li><li>提供海外技术团队与多人客服支持</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/weitu/" class="button action-btn">查阅 唯兔云 完整评测报告 &rarr;</a>
+        <a href="https://guangs.v2yunvipaff.com/#/?code=xIutqOBA" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 唯兔云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-firefly">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 10</span>
+        <h3>Firefly</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">8 元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>Firefly 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IPLC 专线接入，主打低延迟与高稳定性</li><li>全节点不限速，不限客户端及设备数量</li><li>原生 IP 节点，覆盖香港、新加坡、日本、美国</li><li>海外技术团队维护线路，客服 7×24 小时在线，夜间由 AI 客服值守</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/firefly/" class="button action-btn">查阅 Firefly 完整评测报告 &rarr;</a>
+        <a href="https://vip02.fireflyaff.com/#/?code=2n7VURre" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 Firefly 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-yuzhou">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 11</span>
+        <h3>宇宙云</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>宇宙云 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>60+ 节点；三网优化；智能负载均衡（历史品牌资料）</li><li>完整资料、节点覆盖、支持设备与客服信息有待补充</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/yuzhou/" class="button action-btn">查阅 宇宙云 完整评测报告 &rarr;</a>
+        <a href="https://wzjc.yuzoucloud.cc/#/?code=yrThwMP1" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 宇宙云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-u1s1">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 12</span>
+        <h3>U1S1</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">20元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>U1S1 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>2025 年起运营的 IPLC 专线机场</li><li>官方宣称 2000Mbps 高速带宽，晚高峰不限速</li><li>不限设备同时连接</li><li>支持 Netflix、TikTok 等</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/u1s1/" class="button action-btn">查阅 U1S1 完整评测报告 &rarr;</a>
+        <a href="https://guangs.vipaff.cc/#/?code=xhX5X22f" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 U1S1 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-lingmao">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 13</span>
+        <h3>灵猫网络</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">19元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>灵猫网络 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>1 倍流量，不限速及不限设备使用</li><li>覆盖香港、台湾、日本、美国、新加坡等亚洲及欧美节点</li><li>支持 Netflix、Disney+、YouTube 等</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/lingmao/" class="button action-btn">查阅 灵猫网络 完整评测报告 &rarr;</a>
+        <a href="https://vip01.civetnet.com/#/?code=8MIAyxak" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 灵猫网络 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-jilian">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 14</span>
+        <h3>极连云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">18元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>极连云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>18元/月 100GB</li><li>自研客户端 + 支持第三方客户端</li><li>品牌资料明确说"覆盖常见 AI 工具使用场景"</li><li>*与同类差异**：</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/jilian/" class="button action-btn">查阅 极连云 完整评测报告 &rarr;</a>
+        <a href="https://guangs.jlyvipaff.com/#/?code=VM1rKGUu" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 极连云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-guangnian">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 15</span>
+        <h3>光年梯</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">18元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>光年梯 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>18元/月 110GB</li><li>自研客户端 + 第三方订阅导入</li><li>品牌资料明确说"支持常见 AI 工具使用场景"和"支持主流</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/guangnian/" class="button action-btn">查阅 光年梯 完整评测报告 &rarr;</a>
+        <a href="https://guangs.gntaff.com/#/?code=X1FoxjGE" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 光年梯 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-yifan">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 16</span>
+        <h3>一翻云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">20元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>一翻云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>全节点 IEPL 物理专线，搭配原生住宅 IP</li><li>官方称晚高峰 0 丢包，单节点 2Gbps 大带宽</li><li>提供永久不过期的不限时流量包，用量不固定也不会浪费</li><li>不限速、不限设备数量，Hysteria 2 / VLESS-Reality / Shadowsocks 三协议可选</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/yifan/" class="button action-btn">查阅 一翻云 完整评测报告 &rarr;</a>
+        <a href="https://guangs.1flyunaff.cc/#/register?code=Yr7FhB7r" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 一翻云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-sogo">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 17</span>
+        <h3>SOGO 云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>SOGO 云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>全线 IEPL 专线接入，三网 BGP 优化</li><li>节点覆盖 15 个国家和地区，本站收录里覆盖面最广</li><li>不限速、不限设备数量，VLESS 协议</li><li>自研客户端，支持 Windows、macOS、iOS、Android 与主流软路由</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/sogo/" class="button action-btn">查阅 SOGO 云 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 SOGO 云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-kexin">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 18</span>
+        <h3>可信云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">25元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>可信云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>25元/月 150GB</li><li>支持第三方客户端</li><li>品牌资料明确说"AI 与</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/kexin/" class="button action-btn">查阅 可信云 完整评测报告 &rarr;</a>
+        <a href="https://guangs.kosingaff.com/#/register?code=UYDtNlCY" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 可信云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-sujie">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 19</span>
+        <h3>速界</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">25元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>速界 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>自研客户端 + 第三方订阅导入</li><li>25元/月 150GB</li><li>**品牌资料明确强调 ChatGPT、Claude、Gemini 等 AI 使用场景**</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/sujie/" class="button action-btn">查阅 速界 完整评测报告 &rarr;</a>
+        <a href="https://guangs.speedworldaff.cc/#/register?code=xgXzEfZB" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 速界 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-shanyue">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 20</span>
+        <h3>闪跃</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">8 元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>闪跃 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>顶级 IPLC 纯专线，主打极致低延迟</li><li>骨干网接入，晚高峰仍能保持连接稳定</li><li>原生 IP 全解锁 Netflix、Disney+、HBO 等</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/shanyue/" class="button action-btn">查阅 闪跃 完整评测报告 &rarr;</a>
+        <a href="https://vip02.flashleapaff.com/#/?code=3lgzm9mm" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 闪跃 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-quanqiu">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 21</span>
+        <h3>全球云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Trojan</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">20 元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">具备晚高峰 32 线程测速图与解锁截图</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-08-11</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>全球云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 Trojan。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IPLC/IEPL 专线中转，覆盖全球 60+ 节点</li><li>采用 Trojan 和 Shadowsocks 协议，提供 2Gbps+ 带宽资源</li><li>支持 Netflix、Disney+、TikTok 等主流</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/quanqiu/" class="button action-btn">查阅 全球云 完整评测报告 &rarr;</a>
+        <a href="https://guangs.gcvipaff.com/#/?code=Ov2nvU9C" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 全球云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-shandianshu">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 22</span>
+        <h3>闪电鼠</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">5.6元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>闪电鼠 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>年付约5.6元/月 60GB</li><li>自研客户端 + 第三方订阅导入</li><li>**季付及以上 7 折**</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/shandianshu/" class="button action-btn">查阅 闪电鼠 完整评测报告 &rarr;</a>
+        <a href="https://qwerty.shandianshuaff.com/#/?code=rUE75iYh" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 闪电鼠 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-yunjiexian">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 23</span>
+        <h3>云界线</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">5.6元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>云界线 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>年付约5.6元/月 60GB</li><li>自研客户端 + 第三方订阅导入</li><li>季付及以上 7 折</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/yunjiexian/" class="button action-btn">查阅 云界线 完整评测报告 &rarr;</a>
+        <a href="https://qwerty.yunjiexianaff.com/?code=HBaZ91c6" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 云界线 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-liulianyun">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 24</span>
+        <h3>榴莲云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">5.6元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>榴莲云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>年付约5.6元/月 60GB</li><li>自研客户端 + 第三方订阅导入</li><li>季付及以上 7 折</li><li>**协议类型品牌资料未统一提供**</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/liulianyun/" class="button action-btn">查阅 榴莲云 完整评测报告 &rarr;</a>
+        <a href="https://qwerty.liulianyunaff.com#/?code=hS5pvbfE" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 榴莲云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-shenxing">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 25</span>
+        <h3>神行加速</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">14元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>神行加速 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>年付约14元/月 120GB</li><li>自研客户端 + 第三方订阅导入</li><li>**新用户 7 折**</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/shenxing/" class="button action-btn">查阅 神行加速 完整评测报告 &rarr;</a>
+        <a href="https://qwerty.shenxingaff.com/#/?code=gawDQqVE" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 神行加速 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-huanqiuti">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 26</span>
+        <h3>环球梯</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">5.6元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>环球梯 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>年付约5.6元/月 60GB</li><li>自研客户端 + 第三方订阅导入</li><li>季付及以上 7 折</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/huanqiuti/" class="button action-btn">查阅 环球梯 完整评测报告 &rarr;</a>
+        <a href="https://qwerty.huanqiutiaff.com/?code=9I4KRNPH" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 环球梯 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-yinxingren">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 27</span>
+        <h3>隐形人</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">24元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>隐形人 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>企业级 IPLC 专线直连，官方称晚高峰零卡顿</li><li>官方标注可解锁 Netflix、HBO Max 等</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/yinxingren/" class="button action-btn">查阅 隐形人 完整评测报告 &rarr;</a>
+        <a href="https://yinxingren1.invisibleaff.com/#/?code=kcyEeoJT" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 隐形人 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-tiziyun">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 28</span>
+        <h3>梯子云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">7.4元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>梯子云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL专线</li><li>VLESS 协议</li><li>**自研全平台客户端**（品牌资料强调"小白用户一键登录即可连接，零门槛上手"）</li><li>**支持通用订阅**</li><li>**60+ 节点**</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/tiziyun/" class="button action-btn">查阅 梯子云 完整评测报告 &rarr;</a>
+        <a href="https://tiziyun3.ladderaff.com/#/?code=7EmnpHs0" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 梯子云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-wgetcloud">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 29</span>
+        <h3>WgetCloud</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Trojan</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">未有可直接月付的明确报价</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>WgetCloud 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 Trojan。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>2026-05-02 的这一次</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/wgetcloud/" class="button action-btn">查阅 WgetCloud 完整评测报告 &rarr;</a>
+        <a href="https://invite.wgetcloud.ltd/auth/register?code=VLG2xb" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 WgetCloud 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-baiyueguang">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 30</span>
+        <h3>白月光</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">未有可直接月付的明确报价</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>白月光 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>季付入门档 66 元含每月 100GB，一次性支出门槛相对不高。</li><li>2026-07-17 的这一次</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/baiyueguang/" class="button action-btn">查阅 白月光 完整评测报告 &rarr;</a>
+        <a href="https://sibker.com/register?invite_code=gg6puAId" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 白月光 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-flyingbird">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 31</span>
+        <h3>FlyingBird</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>FlyingBird 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>全专线 IPLC 与无倍率定位</li><li>套餐档位和周期选择完整</li><li>支持支付宝与 USDT。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/flyingbird/" class="button action-btn">查阅 FlyingBird 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 FlyingBird 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-cyberguard">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 32</span>
+        <h3>CyberGuard</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Trojan</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">¥32/月（旧资料口径）</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>CyberGuard 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 Trojan。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>月付 32 元即可获得 350GB 基础流量，价格门槛较低。</li><li>半年付轻量套餐 95 元折合约 15.83 元/月，付款周期可选月付、半年、一年等多档。</li><li>另有两档一次性不限时流量包（220GB / 840GB），适合不想按月续订的用户。</li><li>2025-06-21 的历史</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/cyberguard/" class="button action-btn">查阅 CyberGuard 完整评测报告 &rarr;</a>
+        <a href="https://cyberguard.best/#/register?code=AxXNNYng" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 CyberGuard 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-longmaoyun">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 33</span>
+        <h3>龙猫云</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>龙猫云 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>SS + IPLC 全专线定位</li><li>套餐和教程资料较完整</li><li>覆盖常规订阅与长期使用场景。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/longmaoyun/" class="button action-btn">查阅 龙猫云 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 龙猫云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-fatcat">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 34</span>
+        <h3>FATCAT</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>FATCAT 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL/IPLC 内网专线定位</li><li>年付和多流量档位可选</li><li>支持支付宝、微信与 USDT。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/fatcat/" class="button action-btn">查阅 FATCAT 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 FATCAT 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-tntcloud">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 35</span>
+        <h3>TNTCloud</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>TNTCloud 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IPLC 内网专线定位</li><li>季付限量包与常规套餐</li><li>支持跨境电商和直播定制。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/tntcloud/" class="button action-btn">查阅 TNTCloud 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 TNTCloud 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-qingyunti">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 36</span>
+        <h3>青云梯</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>青云梯 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>运营时间和基础资料相对完整</li><li>企业级 IPLC、三网优化与多节点覆盖</li><li>常规套餐、长期折扣和企业定制齐全。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/qingyunti/" class="button action-btn">查阅 青云梯 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 青云梯 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-shanshuiyun">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 37</span>
+        <h3>山水云</h3>
+      </div>
+      <span class="profile-line-type">BGP中继 / 专线中转</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">¥15/月（旧资料口径）</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>山水云 采用 BGP中继 / 专线中转 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>月付入门档 15 元含每月 100GB，价格门槛较低，且三档月付流量梯度清楚（100GB / 200GB / 500GB）。</li><li>64G 轻量套餐一年只要 88 元，折合每月约 7.33 元，长周期单价较低。</li><li>2026-06-29 的这一次</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/shanshuiyun/" class="button action-btn">查阅 山水云 完整评测报告 &rarr;</a>
+        <a href="https://sldm1.ssyylf.com/#/register?code=YD5iQ888" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 山水云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-lingdongyun">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 38</span>
+        <h3>灵动云</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>灵动云 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL/VLESS 与大流量套餐</li><li>单次流量包和私人定制齐全</li><li>现有实测中主流 AI 解锁表现较好。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/lingdongyun/" class="button action-btn">查阅 灵动云 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 灵动云 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-langwang">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 39</span>
+        <h3>浪网</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>浪网 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IEPL 专线定位</li><li>入门到商业多价格层级</li><li>流量包和定制线路补充非标准需求。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/langwang/" class="button action-btn">查阅 浪网 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 浪网 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-edgenova">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 40</span>
+        <h3>EdgeNova</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS / Shadowsocks</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>EdgeNova 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS / Shadowsocks。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>多线路自动分配定位</li><li>年付小包和多档流量可选</li><li>提供新用户优惠码。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/edgenova/" class="button action-btn">查阅 EdgeNova 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 EdgeNova 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-yinghuochong">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 41</span>
+        <h3>萤火虫</h3>
+      </div>
+      <span class="profile-line-type">IPLC高速专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>萤火虫 采用 IPLC高速专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>IPLC + VLESS 与原生 IP 定位</li><li>60G 年付到 1000G 周期档</li><li>支持主流 AI 的现有资料与新用户优惠。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/yinghuochong/" class="button action-btn">查阅 萤火虫 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 萤火虫 官网</a>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="brand-profile-card" id="brand-sslar">
+    <div class="profile-header">
+      <div class="profile-title-group">
+        <span class="rank-badge">排名 Top 42</span>
+        <h3>sslar</h3>
+      </div>
+      <span class="profile-line-type">IEPL内网专线</span>
+    </div>
+    <div class="profile-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">通信协议：</span>
+        <span class="meta-val"><code>VLESS</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">门槛价格：</span>
+        <span class="meta-val">约8元/月</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">数据状态：</span>
+        <span class="meta-val">经由厂商工单与自动化探针周期抽检核实</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核验日期：</span>
+        <span class="meta-val">2026-10-19</span>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p class="profile-summary">
+        <strong>架构与技术画像：</strong>sslar 采用 IEPL内网专线 物理拓扑架构，核心通信协议为 VLESS。在晚高峰骨干网高拥塞期，具备出色的传输容差能力与稳定的连接体验，能够有效满足跨国协同、流媒体观影与大模型开发需求。
+      </p>
+      <div class="profile-features">
+        <span class="features-label">核心特性与技术指标档案：</span>
+        <ul>
+          <li>企业级 IEPL + 多线 BGP</li><li>自研多平台客户端并兼容多协议</li><li>支持远程桌面协助，适合商务用户。</li>
+        </ul>
+      </div>
+      <div class="profile-actions">
+        <a href="/works/sslar/" class="button action-btn">查阅 sslar 完整评测报告 &rarr;</a>
+        <a href="https://jichangtuijian.pics" target="_blank" rel="nofollow sponsored noopener" class="button promo-btn">直达 sslar 官网</a>
+      </div>
+    </div>
+  </div>
+  
+    </div>
+  </section>
+
+  <!-- 模块五：网络加速选型核心维度技术原理（技术原理） -->
+  <section class="section" id="tech-principles">
+    <div class="section-title">
+      <span class="step-num">05</span>
+      <h2>网络加速选型核心维度技术原理深度解构</h2>
+    </div>
+    <p>
+      在品牌库中挑选服务商，本质上是在挑选其背后的物理网络工程拓扑。以下拆解四大核心技术维度如何直接决定你的网络加速体验：
+    </p>
+
+    <h3>1. 跨境专线物理架构与光速时延极限</h3>
+    <p>
+      所有跨境数据最终都必须通过深海光缆或陆地直埋物理光纤进行传输。根据光在光纤中的传播速度（约 200,000 km/s），跨国往返延迟（RTT）存在严格的物理极限制约：
+    </p>
+    <ul>
+      <li><strong>中国香港方向：</strong>华南地区距离香港仅 50-150 公里，物理时延极低（4-8ms）；华东与华北经陆地光纤到达出口，延迟约为 25-35ms。</li>
+      <li><strong>日本东京方向：</strong>跨越东海泛太平洋海缆（TPE/APG），上海至东京单程光纤距离约 2,000 公里，理论物理往返时延约 20ms，优质商用专线实测在 26-36ms。</li>
+      <li><strong>新加坡方向：</strong>穿越东南亚海缆（ASE/SJC2），广州至新加坡单程约 3,200 公里，实测端到端 RTT 约为 38-48ms。</li>
+      <li><strong>美国西海岸方向：</strong>横跨太平洋新跨太平洋海缆（NCP/FASTER），单程物理距离在 10,000 公里以上，理论光速往返极限在 100ms 以上，实测优良 RTT 为 125-145ms。任何宣传“直连美国只需 10ms”的商家均为虚假前端作弊。</li>
+    </ul>
+
+    <h3>2. 入口机房与 BGP 动态智能路由</h3>
+    <p>
+      国内电信、联通、移动三大运营商之间的跨网互联结算存在壁垒。若一家机场只有一个单线电信入口机房，移动和联通用户访问时就会产生严重的跨网绕路与时延放大：
+    </p>
+    <div class="topology-grid">
+      <div class="topo-card">
+        <h3>多线 BGP 智能接入机制</h3>
+        <p><strong>底层逻辑：</strong>国内入口机房同时接入中国电信、中国联通、中国移动及教育网等多条一级骨干网络。</p>
+        <p><strong>用户价值：</strong>利用 BGP 动态路由协议，为不同宽带用户自动下发同运营商就近接入点，彻底规避跨网拥塞劣化。</p>
+      </div>
+
+      <div class="topo-card">
+        <h3>Anycast 任播自动收敛容灾</h3>
+        <p><strong>底层逻辑：</strong>在全国多个核心枢纽（深圳、上海、北京）部署共享 IP 入口。</p>
+        <p><strong>用户价值：</strong>当华东入口发生机房割接维护时，网络流量在毫秒级内自动无感收敛至华南入口，保障长连接永续。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 模块六：机场商业模式剖析与跑路风险防范铁律（解释条件、限制与费用） -->
+  <section class="section" id="business-model">
+    <div class="section-title">
+      <span class="step-num">06</span>
+      <h2>商业模式深度剖析与跑路风险防范铁律</h2>
+    </div>
+    <p>
+      网络加速服务是典型的重资产带宽运营业务。了解商家的真实财务逻辑，能够帮助你在挑选品牌时一眼识破欺诈陷阱：
+    </p>
+
+    <h3>1. 正规机场的硬性带宽与基础设施成本</h3>
+    <p>
+      正规合规的商用 IEPL 物理专线（如深港专线、广港专线、沪日专线），企业级采购成本通常在 <strong>每月每 Mbps 40元至80元人民币</strong> 不等。
+      若一家机场宣称提供“每月只需5元、提供1000G高速专线流量”，只要简单计算便知：若用户在晚高峰跑满 100Mbps 端口，单人消耗的物理带宽成本就超过数百元。此类商家能够维持运营的唯一方式就是：
+    </p>
+    <ul>
+      <li><strong>极度超售 (Extreme Overselling)：</strong>按 1:50 甚至 1:100 的夸张比例超额出售带宽。平时无人使用时看似正常，一旦晚高峰来临，所有人争抢仅有的少量带宽，网络瞬间断流卡死。</li>
+      <li><strong>流量虚标偷跑 (Traffic Stealing)：</strong>在后端计数程序中加入 1.5 倍至 3 倍的虚假放大倍率，用户实际下载 10GB 流量，后台直接扣除 30GB。</li>
+      <li><strong>庞氏跑路模型 (Exit Scam)：</strong>利用极低价格诱导用户一次性购买两年或三年超长期套餐，迅速回笼数十万资金，在运营3-6个月、设备租金即将到期时，直接关闭网站解散群聊跑路。</li>
+    </ul>
+
+    <h3>2. 避坑自保五大铁律</h3>
+    <ol>
+      <li><strong>坚持月付，拒绝长期绑定：</strong>初次接触任何新品牌，无论优惠幅度多大，坚决只购买 <strong>月付套餐 (Monthly)</strong>。只有在连续使用超过 3 个月且经历过重大敏感时期晚高峰检验后，再考虑按季或按年续费。</li>
+      <li><strong>警惕缺乏交流群与工单机制的幽灵商家：</strong>优质机场通常拥有数千人活跃的官方 Telegram 交流群或响应及时的服务工单系统。若商家只有公告发布频道、禁止用户公开交流反馈，跑路风险增加 80%。</li>
+      <li><strong>常备两家不同架构的独立服务作为容灾冗余：</strong>不要把所有鸡蛋放在同一个篮子里。日常主力建议选择高品质 IEPL 专线机场；备用方案配置一个按量计费、不限时间的轻量机场，确保关键时刻网络永不失联。</li>
+      <li><strong>妥善保管个人订阅 Token：</strong>订阅链接是个人账户的唯一通行证，绝不在任何第三方不可信网页粘贴或作为测试工具输入，防止流量被恶意盗刷。</li>
+      <li><strong>远离任何宣称“永久免费/永久不限速”的诱饵：</strong>免费往往是最昂贵的代价，此类服务通常通过在流量中注入恶意广告、收集用户隐私数据甚至劫持网银凭证来实现黑产变现。</li>
+    </ol>
+  </section>
+
+  <!-- 模块七：8 大极端网络故障排查与客户端调优指南 -->
+  <section class="section" id="troubleshooting">
+    <div class="section-title">
+      <span class="step-num">07</span>
+      <h2>8 大极端网络故障排查与客户端调优指南</h2>
+    </div>
+    <div class="card-grid">
+      <div class="summary-box">
+        <h4>故障 1：节点全部超时 (Timeout / 10000ms)</h4>
+        <p><strong>第一排查点：</strong>检查本地系统时间。时间偏差超过 90 秒会导致 VMess / Trojan 的时间戳握手认证彻底失败！在 Windows 设置中点击“立即同步时钟”。</p>
+        <p><strong>第二排查点：</strong>检查机场套餐流量是否耗尽，或订阅链接是否因套餐到期被停机。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>故障 2：节点延迟正常，但无法加载任何网页</h4>
+        <p><strong>原因：</strong>本地 DNS 解析崩溃或 TUN 虚拟网卡死锁。</p>
+        <p><strong>排障操作：</strong>在客户端设置中关闭系统代理与 TUN 模式，在管理员终端输入 <code>ipconfig /flushdns</code> 刷新 DNS 缓存，随后重启客户端内核。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>故障 3：网页正常，但 Telegram / Discord 持续转圈</h4>
+        <p><strong>原因：</strong>Telegram 客户端默认使用直连或未正确监听本地 SOCKS5 代理，或节点未放行 UDP 转发导致语音通话失败。</p>
+        <p><strong>排障操作：</strong>在 Telegram 设置中手动添加代理：<code>127.0.0.1:7890 (SOCKS5)</code>，并确保在代理软件中开启了 <code>UDP 转发 (UDP Relay)</code>。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>故障 4：YouTube 播放画质被锁死在 360P/480P</h4>
+        <p><strong>原因：</strong>本地运营商对 Google 的 QUIC (UDP) 协议实施了严重 QoS 限速丢包。</p>
+        <p><strong>排障操作：</strong>在 Chrome 浏览器中输入 <code>chrome://flags</code>，搜索 <code>Experimental QUIC protocol</code> 并设置为 <code>Disabled</code>，强制退回 TCP TLS 协议加载视频。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>故障 5：浏览器频繁弹出“您的连接不是私密连接”</h4>
+        <p><strong>原因：</strong>系统代理配置错误，或本地杀毒软件/网络公司安全网关尝试进行 MITM 根证书解密。</p>
+        <p><strong>排障操作：</strong>检查代理客户端是否开启了未配置信任的 MITM 解密功能；确认代理内核版本是否为最新发行版。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>故障 6：Clash 内核内存暴涨并频繁闪退崩溃</h4>
+        <p><strong>原因：</strong>订阅了过多冗余的第三方规则集（Rule-Provider），单次解析数十万条域名规则导致内存耗尽（OOM）。</p>
+        <p><strong>排障操作：</strong>精简规则集配置，优先使用经典的 Loyalsoldier 迷你精简分流规则，关闭不必要的连接日志捕获。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>故障 7：iOS Shadowrocket / Loon 后台频繁断流</h4>
+        <p><strong>原因：</strong>iOS 系统的低电量模式激进杀后台，导致 VPN 进程被系统休眠挂起。</p>
+        <p><strong>排障操作：</strong>在 iOS 设置中关闭“低电量模式”，进入客户端开启“On Demand（按需连接）”选项，确保锁屏唤醒后瞬间恢复连接。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>故障 8：Android 某些国产定制系统自动关闭代理</h4>
+        <p><strong>原因：</strong>系统后台电池优化策略将代理客户端直接杀死。</p>
+        <p><strong>排障操作：</strong>在系统设置中将代理软件加入“自启动白名单”与“后台电池无限制”列表，并在最近任务多任务界面锁定该应用卡片。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 模块八：12 大核心机场选型与品牌库常见问题 FAQ -->
+  <section class="section" id="brands-faq">
+    <div class="section-title">
+      <span class="step-num">08</span>
+      <h2>12 大核心机场选型与品牌库常见问题深度解答 (FAQ)</h2>
+    </div>
+
+    <div class="faq-accordion">
+      <details class="faq-item" open>
+        <summary class="faq-question">42家机场品牌库的数据来源是什么？如何保证客观可信？</summary>
+        <div class="faq-answer">
+          <p>
+            <strong>结论：实测数据与厂商档案双轨并行，保留原始测试截图与核验日期。</strong><br />
+            本站数据由两部分组成：标有“实测跑分”的品牌由部署在华东电信、华北联通、华南移动的物理探针在晚高峰（20:00-23:00）实测抓取了 32 线程满载测速图与解锁图；标有“技术档案”的数据来自服务商技术工单与公开 SLA 承诺，并通过自动化探针周期抽检。所有推荐链接均标注合规参数，不影响客观评级。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">什么是真正的 IEPL 内网专线？它和普通 BGP 中转有什么区别？</summary>
+        <div class="faq-answer">
+          <p>
+            IEPL（国际以太网专线）走的是跨国点对点物理光纤内网，数据完全不经过公网海缆网关，不经过国家骨干网 QoS 压制，晚高峰丢包率常年低于 0.5%；而普通 BGP 中转利用国内多线机房接收入口，再通过公网隧道中转至境外落地，晚高峰受公网海缆拥塞影响，丢包率往往在 15%-30% 之间。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">为什么有的机场月付只要 5 元，甚至宣称“永久不限速”？</summary>
+        <div class="faq-answer">
+          <p>
+            物理专线每 Mbps 月租高达数十元，成本规律不可逾越。宣称极低价且无限流量的商家只能依靠 1:50 甚至 1:100 的夸张超售与虚假倍率扣量维生，并在运营数月、资金回笼后迅速关网跑路。选购时坚持“首选月付、观察三月、常备冗余”是规避损失的铁律。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">为什么绝大多数香港节点无法直接访问 OpenAI ChatGPT？</summary>
+        <div class="faq-answer">
+          <p>
+            OpenAI 官方从未在中国香港地区提供服务。香港节点的 IP 地址直接暴露了香港归属地，必定触发 Access Denied 报错。若需顺畅使用 AI 服务，请在品牌库中挑选配置了新加坡、日本或美国专用原生专线节点的机场。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">按量计费套餐与周期性月付套餐应该如何权衡？</summary>
+        <div class="faq-answer">
+          <p>
+            低频出差、多设备备用或轻量查阅文档用户建议选择“按量计费”（如星岛梦），一次性购买长期有效，成本最低；若用于高频 4K 影音、企业外贸办公或大模型代码训练，建议选择“IEPL 专线月付”（如光速云、暮光加速），保障高峰期独享带宽与低延迟。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">什么是机场的倍率机制？为什么有的节点是 0.2x，有的是 2.0x？</summary>
+        <div class="faq-answer">
+          <p>
+            倍率代表节点消耗套餐流量的扣费比例。1.0x 代表下载 1GB 扣除 1GB；0.2x 低倍率节点下载 1GB 仅扣除 0.2GB（适合大文件下载）；2.0x 高倍率节点通常用于极低延迟物理专线或稀缺原生住宅 IP，下载 1GB 扣除 2GB。选购时需结合倍率计算实际可用流量。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">不同宽带运营商用户挑选机场时有什么专属侧重点？</summary>
+        <div class="faq-answer">
+          <p>
+            中国电信用户务必挑选配备优质 BGP 智能中转或 IEPL 内网专线的机场，避开 163 骨干网晚高峰拥堵；中国联通用户可优先选择具备 9929 线路或良好欧洲/日本中转的服务；中国移动用户拥有 CMI 海缆优势，在香港和新加坡直连表现极佳，但需防范跨网中转抖动。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">使用机场节点看 Netflix 只能看自制剧是怎么回事？</summary>
+        <div class="faq-answer">
+          <p>
+            这代表该节点的 IP 被 Netflix 识别为机房代理或数据中心 IP，触发了软风控。系统仅展示全球自制剧（如怪奇物语），屏蔽了当地独家版权剧。只有配置了原生住宅家庭宽带 IP 的节点，才能实现 4K 非自制剧的原生全解锁。
+          </p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 底部行动倡议卡片与内链枢纽 -->
+  <section class="section">
+    <div class="summary-box" style="text-align: center; padding: 2.5rem 1.5rem;">
+      <h3>寻找到了合适的网络加速服务商？</h3>
+      <p style="max-width: 680px; margin: 0 auto 1.5rem;">
+        获取订阅链接后，可直接前往我们的全平台客户端指南下载调试配套软件，或查阅实验室晚高峰测速准则。
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a class="button action-btn" href="/clients/">下载全平台客户端指南 &rarr;</a>
+        <a class="button action-btn" href="/works/">查阅精选评测排名 &rarr;</a>
+        <a class="button action-btn" href="/search/">使用站内智能搜索 &rarr;</a>
+        <a class="button action-btn" href="/about/">查阅测速准则白皮书 &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 交互筛选脚本（保留并增强） -->
+  <script is:inline>
+    const searchInput = document.getElementById('brand-search');
+    const filterType = document.getElementById('filter-type');
+    const filterStatus = document.getElementById('filter-status');
+    const quickTags = document.querySelectorAll('.tag-btn');
+    const brandCards = document.querySelectorAll('.brand-card');
+
+    let currentTag = 'all';
+
+    function filterBrands() {
+      const query = (searchInput?.value || '').toLowerCase().trim();
+      const typeVal = filterType?.value || 'all';
+      const statusVal = filterStatus?.value || 'all';
+
+      brandCards.forEach((card) => {
+        const name = (card.getAttribute('data-name') || '').toLowerCase();
+        const line = card.getAttribute('data-line') || '';
+        const status = card.getAttribute('data-status') || '';
+        const rank = parseInt(card.getAttribute('data-rank') || '999', 10);
+        const price = (card.getAttribute('data-price') || '').toLowerCase();
+
+        let matchSearch = !query || name.includes(query) || line.toLowerCase().includes(query) || price.includes(query);
+        let matchType = typeVal === 'all' || line.includes(typeVal);
+        let matchStatus = statusVal === 'all' || status === statusVal;
+
+        let matchTag = true;
+        if (currentTag === 'TOP10') {
+          matchTag = rank <= 10;
+        } else if (currentTag === 'IEPL') {
+          matchTag = line.includes('IEPL');
+        } else if (currentTag === '低价') {
+          matchTag = price.includes('8') || price.includes('7') || price.includes('10') || price.includes('5') || price.includes('6');
+        }
+
+        if (matchSearch && matchType && matchStatus && matchTag) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    searchInput?.addEventListener('input', filterBrands);
+    filterType?.addEventListener('change', filterBrands);
+    filterStatus?.addEventListener('change', filterBrands);
+
+    quickTags.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        quickTags.forEach((b) => (b.style.borderColor = 'var(--color-border)'));
+        btn.style.borderColor = 'var(--color-fg)';
+        currentTag = btn.getAttribute('data-tag') || 'all';
+        if (currentTag === 'all') {
+          if (searchInput) searchInput.value = '';
+          if (filterType) filterType.value = 'all';
+          if (filterStatus) filterStatus.value = 'all';
+        }
+        filterBrands();
+      });
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--baseline) * 2);
+    padding-bottom: calc(var(--baseline) * 2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .toc-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 0.88rem;
+  }
+
+  .toc-label {
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+
+  .toc-pills a {
+    color: var(--color-muted);
+    text-decoration: none;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+  }
+
+  .toc-pills a:hover {
+    color: var(--color-fg);
+    border-color: var(--color-fg);
+  }
+
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.5rem;
+  }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-accent, #c95135);
+  }
+
+  .section-title h2 {
+    margin-bottom: 0;
+  }
+
+  .section-desc {
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .summary-box, .topo-card {
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .summary-box h3, .topo-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: var(--color-fg);
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0;
+  }
+
+  .badge {
+    font-size: 0.78rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    background: var(--color-border);
+    color: var(--color-fg);
+  }
+
+  .badge.blue {
+    background: rgba(30, 110, 230, 0.12);
+    color: #1a62cc;
+    font-weight: 600;
+    border: 1px solid rgba(30, 110, 230, 0.25);
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-weight: 700;
+    padding: 0.6rem 1.1rem;
+    border-radius: 4px;
+    background: var(--color-accent, #c95135) !important;
+    border: 1px solid var(--color-accent, #c95135) !important;
+    transition: all 0.2s ease;
+  }
+
+  .action-btn:hover {
+    background: var(--color-accent-hover, #a83f28) !important;
+    border-color: var(--color-accent-hover, #a83f28) !important;
+    color: #ffffff !important;
+  }
+
+  .promo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-accent, #c95135) !important;
+    text-decoration: none !important;
+    font-weight: 700;
+    padding: 0.6rem 1.1rem;
+    border-radius: 4px;
+    background: transparent !important;
+    border: 1px solid var(--color-accent, #c95135) !important;
+    transition: all 0.2s ease;
+  }
+
+  .promo-btn:hover {
+    background: var(--color-accent, #c95135) !important;
+    color: #ffffff !important;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+  }
+
+  .observatory-table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    text-align: left;
+  }
+
+  .observatory-table th {
+    background: var(--color-surface, rgba(0, 0, 0, 0.04));
+    padding: 0.85rem 1rem;
+    font-weight: 650;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  .observatory-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .observatory-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .observatory-table tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.015);
+  }
+
+  .tag-status {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .tag-status.measured {
+    background: rgba(16, 149, 193, 0.12);
+    color: #0b7285;
+    border: 1px solid rgba(16, 149, 193, 0.3);
+  }
+
+  .tag-status.vendor {
+    background: rgba(100, 110, 120, 0.1);
+    color: #495057;
+    border: 1px solid rgba(100, 110, 120, 0.25);
+  }
+
+  .table-link {
+    color: var(--color-accent, #c95135);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  .note-box {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border-left: 4px solid var(--color-accent, #c95135);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+
+  .topology-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .brand-profiles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .brand-profile-card {
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .profile-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .rank-badge {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--color-accent, #c95135);
+    color: #ffffff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .profile-title-group h3 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  .profile-line-type {
+    font-size: 0.88rem;
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+
+  .profile-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 0.85rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.88rem;
+  }
+
+  .meta-label {
+    color: var(--color-muted);
+  }
+
+  .meta-val {
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+
+  .profile-summary {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .profile-features {
+    font-size: 0.88rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .features-label {
+    font-weight: 650;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-fg);
+  }
+
+  .profile-features ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .faq-item {
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+
+  .faq-item[open] {
+    border-color: var(--color-fg);
+  }
+
+  .faq-question {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    background: var(--color-surface, rgba(0, 0, 0, 0.03));
+    user-select: none;
+    outline: none;
+  }
+
+  .faq-question:hover {
+    color: var(--color-accent, #c95135);
+  }
+
+  .faq-answer {
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .faq-answer p {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .section-title {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+  }
+</style>

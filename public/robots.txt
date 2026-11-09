@@ -1,0 +1,23 @@
+# robots.txt for jichangtuijian.pics
+User-agent: *
+Allow: /
+
+# Major search engine crawlers explicitly allowed
+User-agent: Googlebot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: yisouspider
+Allow: /
+
+# Disallow dynamic search parameter queries
+Disallow: /search?*
+
+# Sitemaps
+Sitemap: https://jichangtuijian.pics/sitemap-index.xml
+Sitemap: https://jichangtuijian.pics/sitemap.xml

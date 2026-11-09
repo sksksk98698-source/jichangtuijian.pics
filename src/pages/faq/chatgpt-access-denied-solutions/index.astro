@@ -1,0 +1,251 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StructuredData from '../../../components/StructuredData.astro';
+import { withBase } from '../../../i18n';
+
+const title = 'ChatGPT 报错 Access Denied、1020 与 IP 限制全套解决手册 | 机场FAQ';
+const description = 'OpenAI 提示 Access Denied、Error 1020、Unable to load site 怎么办？深度剖析 Cloudflare WAF 对机房 IP 的封锁机制，提供原生纯净住宅 IP 筛选技巧、WebRTC 防泄漏配置及专用分流规则代码。';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  'headline': title,
+  'description': description,
+  'articleSection': 'AI 运维与风控排错',
+  'inLanguage': 'zh-CN'
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <StructuredData slot="head" schema={schema} />
+
+  <article class="article-container">
+    <header class="article-header">
+      <div class="breadcrumb">
+        <a href={withBase('/')}>首页</a>
+        <span class="sep">/</span>
+        <a href={withBase('/faq/')}>机场百科与高频 FAQ</a>
+        <span class="sep">/</span>
+        <span class="current">正文</span>
+      </div>
+      <span class="category-tag">AI 工具风控规避</span>
+      <h1>ChatGPT 报错 Access Denied、1020 与 IP 限制全套解决手册</h1>
+      <p class="meta">网络基础设施观测实验室 · 实测技术专刊 · 建议阅读时间 9 分钟</p>
+    </header>
+
+    <div class="article-body">
+      <p class="lead">
+        自 2022 年底生成式人工智能爆发以来，OpenAI 的 ChatGPT 与 Claude 已经成为广大科研工作者、程序员与外贸人员的日常生产力中枢。然而，伴随着海量用户的涌入，OpenAI 协同 Cloudflare 部署了全球防护等级最高、策略最为动态的反欺诈 WAF（Web Application Firewall）防火墙。数以万计的用户在访问时频繁遭遇 <strong>“Access denied (Error code 1020)”</strong>、<strong>“Your IP is blocked”</strong> 或页面长时间空白死锁。本手册旨在系统性拆解其拦截逻辑，并提供可直接复制落地的实战解决方案。
+      </p>
+
+      <h2>一、深度拆解：Cloudflare WAF 针对 OpenAI 的三重防御体系</h2>
+      <p>
+        很多人以为只要节点能够连上外网，就能顺理成章访问 ChatGPT。实际上，当你输入 <code>chatgpt.com</code> 并敲击回车的一瞬间，你的请求在触达真正的 GPT 大模型之前，必须连续通过三层极其严苛的自动化审查：
+      </p>
+      <ol>
+        <li>
+          <strong>地理区域白名单审查（Geo-Restriction）：</strong><br />
+          OpenAI 仅对全球特定批准的法定国家和地区开放服务。中国大陆及<strong>中国香港特别行政区</strong>均不在官方支持列表内。如果你的代理客户端正在使用香港节点，Cloudflare 会在毫秒级时间内检测到你的请求来自香港 ASN IP 段，立即返回阻断页面；
+        </li>
+        <li>
+          <strong>IP 纯净度与 ASN 欺诈分级（Fraud Score）：</strong><br />
+          Cloudflare 维护着庞大的威胁情报数据库。当来自亚马逊 AWS、谷歌 GCP、甲骨文 Oracle 等廉价云计算数据中心的机房 IP 发起请求时，系统会为该 IP 标记极高的风险分（Fraud Score &gt; 80）。当同一个机房 IP 在一小时内向 OpenAI 接口发起了成千上万次连接，WAF 会认定该 IP 正处于被恶意脚本、黑客扫描或批量并发滥用状态，直接触发全局 1020 阻断封禁；
+        </li>
+        <li>
+          <strong>浏览器环境指纹与 WebRTC 穿透探针：</strong><br />
+          现代前端安全体系通过 Canvas 指纹、Audio 指纹、本地系统时区与语言、以及 WebRTC 协议直接刺探设备的真实底层网络。很多用户即使开着代理，其浏览器内部的 WebRTC 模块依然在后台默默向 STUN 服务器回传真实的本地内网甚至国内公网 IP，导致前后特征冲突被判定为异常代理伪装。
+        </li>
+      </ol>
+
+      <h2>二、终极实操四步法：从根源清除 1020 报错</h2>
+
+      <h3>第一步：绝对严禁将香港节点作为 OpenAI 的路由目标</h3>
+      <p>
+        请立即检查你当前客户端的策略组分流规则。在节点选择中，将访问 OpenAI 的规则锁定在<strong>美国西海岸（如洛杉矶、圣何塞）、日本东京、新加坡或英国</strong>等原生开放地区节点。在没有手动指定分流的情况下，切勿使用“自动选路（Auto）”或“最低延迟”，因为在地理距离上香港延迟最低（通常 20ms~30ms），自动测速会永远优先选中香港节点，从而陷入无休止的 1020 报错循环。
+      </p>
+
+      <h3>第二步：彻底清除浏览器缓存与已注册的 Service Worker</h3>
+      <p>
+        这是极易被忽视的致命陷阱！Cloudflare 的 1020 拦截状态会被浏览器深度的 LocalStorage 和 Service Worker 强行缓存。即使你随后更换了一个绝对干净的原生美国节点，浏览器仍然会优先调用本地缓存的失败页面！
+      </p>
+      <p><strong>标准清理流程：</strong></p>
+      <ul>
+        <li>在 Chrome/Edge 浏览器中打开 <code>chatgpt.com</code>；</li>
+        <li>按下键盘快捷键 <code>F12</code> 打开【开发者工具】；</li>
+        <li>在顶部菜单切换到【Application】（应用）标签页；</li>
+        <li>在左侧导航栏找到【Storage】，点击右侧主区域的 <strong>“Clear site data”（清除网站数据）</strong>；</li>
+        <li>完全关闭浏览器所有窗口，重新打开并尝试登录。</li>
+      </ul>
+
+      <h3>第三步：在客户端中部署精准的 AI 规则分流代码</h3>
+      <p>
+        为了避免每次访问 ChatGPT 都要痛苦地手动来回切换节点，建议在 Clash Verge Rev 或 Mihomo 的自定义配置文件中，引入权威的 AI 专属规则集，将所有与 OpenAI 相关的域名与 API 强行绑定在最优质的原生专线节点上：
+      </p>
+      <pre><code># OpenAI 与 Claude 专属策略组配置示例
+proxy-groups:
+  - name: 🤖 AI专用通道
+    type: select
+    proxies:
+      - 🇺🇸 美国 01 [原生住宅IP]
+      - 🇯🇵 日本 02 [原生双栈]
+      - 🇸🇬 新加坡 01 [IEPL专线]
+
+rules:
+  # 优先捕获所有 OpenAI 关联域名
+  - DOMAIN-SUFFIX,openai.com,🤖 AI专用通道
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 AI专用通道
+  - DOMAIN-SUFFIX,auth0.openai.com,🤖 AI专用通道
+  - DOMAIN-SUFFIX,oaistatic.com,🤖 AI专用通道
+  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI专用通道
+  - DOMAIN-SUFFIX,anthropic.com,🤖 AI专用通道
+  - DOMAIN-SUFFIX,claude.ai,🤖 AI专用通道
+  - MATCH,兜底策略组</code></pre>
+
+      <h3>第四步：彻底封堵 WebRTC 泄漏风险</h3>
+      <p>
+        在 Chrome 网上应用店中搜索并安装 <code>WebRTC Control</code> 扩展程序，将其状态切换为蓝色的“Disable WebRTC”（禁用 WebRTC）。这样可以彻底阻止浏览器在后台私自暴露本地真实网络接口，使所有的连接特征 100% 严密封装在远端代理节点的 IP 之后。
+      </p>
+    </div>
+
+    <footer class="article-footer">
+      <div class="related-box">
+        <h3>相关专题与导航</h3>
+        <p>深入了解更多技术细节，欢迎查阅：</p>
+        <div class="rel-links">
+          <a href={withBase('/faq/')}>&larr; 返回 机场百科与排错总览</a>
+          <a href={withBase('/faq/speedtest-fast-but-youtube-lag/')}>YouTube 4K 卡顿深度排查 &rarr;</a>
+          <a href={withBase('/faq/tun-mode-vs-system-proxy/')}>TUN 模式与系统代理深度解析 &rarr;</a>
+          <a href={withBase('/brands/')}>查阅 42 家机场品牌库 &rarr;</a>
+        </div>
+      </div>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 4rem;
+  }
+  .article-header {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .breadcrumb {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin-bottom: 0.8rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .breadcrumb a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .category-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    background: rgba(201, 81, 53, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 0.8rem;
+  }
+  .article-header h1 {
+    font-size: 2rem;
+    line-height: 1.35;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+  }
+  .meta {
+    font-size: 0.88rem;
+    color: var(--color-muted);
+  }
+  .article-body {
+    font-size: 1.02rem;
+    line-height: 1.85;
+    color: #2c2c2c;
+  }
+  .lead {
+    font-size: 1.12rem;
+    line-height: 1.8;
+    color: var(--color-text);
+    background: #fbfbfa;
+    border-left: 4px solid var(--color-accent);
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 0 4px 4px 0;
+  }
+  .article-body h2 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin: 2.5rem 0 1rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.5rem;
+  }
+  .article-body h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 1.8rem 0 0.8rem;
+  }
+  .article-body ul, .article-body ol {
+    margin: 1rem 0 1.5rem 1.5rem;
+  }
+  .article-body li {
+    margin-bottom: 0.8rem;
+  }
+  .article-body code {
+    background: #f4f4f3;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.88em;
+    font-family: var(--font-mono);
+  }
+  .article-body pre {
+    background: #222;
+    color: #eee;
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    margin: 1.2rem 0;
+  }
+  .article-body pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+  }
+  .article-footer {
+    margin-top: 3.5rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 2rem;
+  }
+  .related-box {
+    background: #fafaf9;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1.5rem;
+  }
+  .related-box h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.6rem;
+  }
+  .rel-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem 1.2rem;
+    margin-top: 1rem;
+  }
+  .rel-links a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  .rel-links a:hover {
+    text-decoration: underline;
+  }
+</style>

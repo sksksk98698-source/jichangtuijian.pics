@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
+import { withBase } from '../../lib/url';
+import { SITE } from '../../consts';
+
+const title = '法律合规、免责声明与独立评测方法声明 — 机场pics';
+const description = '机场pics (jichangtuijian.pics) 独立第三方技术评测实验室免责声明。阐明网络加速技术研究目的、商业推广链接透明度披露、合规红线及数据观测方法。';
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const absolute = (path: string) => new URL(withBase(path), site).href;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description: description,
+    url: absolute('/disclaimer/'),
+    publisher: {
+      '@type': 'Organization',
+      name: SITE.title,
+      url: absolute('/'),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: absolute('/') },
+      { '@type': 'ListItem', position: 2, name: '免责声明与合规准则', item: absolute('/disclaimer/') },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <StructuredData slot="head" schema={schema} />
+
+  <article class="prose section" style="max-width: 860px; margin: 0 auto; padding-top: 2.5rem; line-height: 1.85;">
+    <div class="breadcrumb" style="font-size: 0.85rem; color: var(--color-muted); margin-bottom: 1rem;">
+      <a href="/" style="color: var(--color-accent); text-decoration: none;">首页</a> / <span>免责声明与合规准则</span>
+    </div>
+
+    <h1 style="font-size: 2.2rem; line-height: 1.3; font-weight: 800; margin-bottom: 1.2rem;">
+      法律合规、免责声明与商业推广透明度披露
+    </h1>
+    <p style="font-size: 0.88rem; color: var(--color-muted); border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 2rem;">
+      生效日期：2026年1月1日 · 最近修订：2026年4月 · 发布机构：机场pics 网络基础设施观测实验室
+    </p>
+
+    <h2>一、技术研究性质与法律合规红线声明</h2>
+    <p>
+      “机场pics”（jichangtuijian.pics）是一个专注于计算机跨域网络通信协议（包括但不限于 Shadowsocks、V2Ray/VMess、VLESS、Trojan、Hysteria2、QUIC 等开源项目）、网络层 Layer 3 虚拟网卡路由编排、TCP 拥塞控制算法以及全球云基础设施延迟性能的<strong>独立技术研究与数据观测博客</strong>。
+    </p>
+    <p>
+      <strong>我们恪守以下国家法律法规与合规底线，并要求所有访问者严格遵守：</strong>
+    </p>
+    <ul>
+      <li><strong>纯洁技术交流目的：</strong>本站所有文章、测评图表与配置指南，仅供跨国企业合法办公、软件开发人员进行海外开源代码仓库（如 GitHub、HuggingFace）同步、学术科研工作者检索正规外文文献数据库（如 IEEE、arXiv、Google Scholar）以及合法跨国贸易业务参考；</li>
+      <li><strong>坚决抵制任何违法犯罪活动：</strong>严禁任何组织或个人利用本站所提及的任何网络工具、中继节点从事危害国家安全、泄露国家秘密、颠覆国家政权、宣扬恐怖主义与极端主义、传播淫秽色情、网络赌博、洗钱以及侵犯他人合法权益等违法犯罪行为；</li>
+      <li><strong>知识产权保护：</strong>本站严正声明，所有加速节点严格禁止用于 BitTorrent、uTorrent、迅雷等 P2P/BT 盗版影视软件下载，倡导尊重全球数字版权。</li>
+    </ul>
+
+    <h2>二、商业赞助与推广返利链接透明度披露（Affiliate Disclosure）</h2>
+    <p>
+      为了向全球读者长期维持公开透明、完全免费的测速数据与知识库服务，并覆盖实验室自费采购 42 家机场商业套餐、租用多地测试物理云主机与海量抓包的硬性服务器运维成本，本站部分页面包含商业推广推荐链接（Affiliate Links / Sponsored Links）。
+    </p>
+    <p>
+      <strong>我们对推广返利政策做出以下公开透明的承诺：</strong>
+    </p>
+    <ol>
+      <li><strong>标准属性规范标记：</strong>本站所有跳转至第三方服务商官方网站的注册或购买链接，均严格标注了 <code>rel="nofollow sponsored noopener"</code> 属性，符合 Google Search Central 与各大搜索引擎反付费作弊链接（Anti-Spam）规范；</li>
+      <li><strong>返利不增加用户任何额外成本：</strong>当你通过本站提供的专属推广链接注册或购买套餐时，第三方商家可能会向本实验室支付微小的佣金激励。该佣金完全由服务商的营销预算支出，<strong>绝对不会增加你购买套餐时的实付金额</strong>；相反，通过本站专属渠道通常可获得独家折扣减免；</li>
+      <li><strong>数据客观独立原则：</strong>本实验室的实测天梯榜、晚高峰延迟数据、丢包率记录以及风险评级，<strong>完全由实际观测抓取数据驱动，绝不出售虚假排名称号，绝不接受任何服务商关于“篡改真实测速数据”的有偿公关</strong>。评测报告中对于任何服务商的缺点与限制（如晚高峰卡顿、无原生 IP、缺乏客服支持等）均保留完全客观的真实记录。</li>
+    </ol>
+
+    <h2>三、第三方服务免责与资金自保风险提示</h2>
+    <p>
+      本站所收录和评测的 42 家机场加速品牌均为独立于本站之外由第三方实体或团队独立运营的商业网络产品。
+    </p>
+    <ul>
+      <li><strong>无连带担保责任：</strong>本站仅对评测执行当期的网络技术指标与可观测性参数进行如实记录，不对任何第三方服务商的长期履约能力、资金状况、售后服务质量或退款政策提供连带法律担保；</li>
+      <li><strong>坚守月付倡导：</strong>网络加速服务具有天然的技术不可控性与外部监管波动风险。本站<strong>自始至终强烈倡导用户坚守小额月付（Monthly）原则</strong>，坚决反对大额长期年付，以将突发跑路风险造成的本金损失降至最低；</li>
+      <li><strong>个人数据与密码安全：</strong>本站绝不收集、不存储任何用户的第三方机场账号密码或订阅链接。请务必妥善保管好个人订阅节点信息，严禁在未经加密的公开网络中传播个人订阅密钥。</li>
+    </ul>
+
+    <h2>四、内容版权与转载规范</h2>
+    <p>
+      本站所有原创评测报告、实测网络拓扑图、专著级技术长文均属于“机场pics 基础设施观测实验室”之原创智力成果。
+      未经本站事先书面授权，任何商业网站、自媒体矩阵严禁对本站文字与实测图表进行未经许可的大规模抓取、搬运或洗稿。正规学术研究与个人技术博客在注明出处（附带本站原文可点击超链接）的前提下允许合理摘录引用。
+    </p>
+
+    <div style="background: var(--color-surface, #fcfcfb); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; margin-top: 2.5rem; text-align: center;">
+      <h3 style="margin-top: 0; font-size: 1.15rem;">查阅本实验室完整技术矩阵</h3>
+      <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem;">
+        <a href="/works/" class="button action-btn" style="text-decoration: none; color: #fff !important; font-size: 0.85rem; padding: 0.45rem 1rem;">42 家机场实测榜单</a>
+        <a href="/about/" class="button" style="text-decoration: none; background: #fff; border: 1px solid var(--color-border); color: var(--color-text); font-size: 0.85rem; padding: 0.45rem 1rem;">测速准则白皮书</a>
+        <a href="/blacklist/" class="button" style="text-decoration: none; background: #fff; border: 1px solid var(--color-border); color: var(--color-text); font-size: 0.85rem; padding: 0.45rem 1rem;">跑路预警黑名单</a>
+        <a href="/faq/" class="button" style="text-decoration: none; background: #fff; border: 1px solid var(--color-border); color: var(--color-text); font-size: 0.85rem; padding: 0.45rem 1rem;">高频 FAQ 百科</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

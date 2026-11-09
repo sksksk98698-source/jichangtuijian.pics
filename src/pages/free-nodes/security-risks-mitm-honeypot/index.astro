@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StructuredData from '../../../components/StructuredData.astro';
+import { withBase } from '../../../lib/url';
+import { SITE } from '../../../consts';
+
+const title = '免费节点投毒原理解析：中间人劫持、密码嗅探与蜜罐节点防范实录 — 机场pics';
+const description = '深度剖析公开免费节点背后的网络黑产攻防内幕。详细拆解中间人攻击（MITM）、SSLstrip 降级劫持、自签名根证书解密与蜜罐节点日志溯源机理，交付实操自保隔离指南。';
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const absolute = (path: string) => new URL(withBase(path), site).href;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: title,
+    description: description,
+    author: {
+      '@type': 'Organization',
+      name: '机场pics 网络基础设施观测实验室',
+      url: absolute('/'),
+    },
+    datePublished: '2026-03-05T10:00:00+08:00',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: absolute('/') },
+      { '@type': 'ListItem', position: 2, name: '免费节点矩阵', item: absolute('/free-nodes/') },
+      { '@type': 'ListItem', position: 3, name: '免费节点投毒与蜜罐劫持分析', item: absolute('/free-nodes/security-risks-mitm-honeypot/') },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <StructuredData slot="head" schema={schema} />
+
+  <article class="prose section" style="max-width: 860px; margin: 0 auto; padding-top: 2rem;">
+    <p class="eyebrow" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-accent, #c95135); margin-bottom: 0.5rem;">
+      <a href="/free-nodes/" style="color: inherit; text-decoration: underline;">&larr; 返回免费节点安全矩阵</a> · 深度安全攻防专栏
+    </p>
+    <h1 style="font-size: 2.2rem; line-height: 1.3; font-weight: 800; margin-bottom: 1.2rem;">
+      免费节点投毒原理解析：中间人劫持、密码嗅探与蜜罐节点防范实录
+    </h1>
+    <div style="font-size: 0.88rem; color: var(--color-muted); margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+      发布日期：2026年3月 · 作者：机场pics 实验室安全组 · 审核状态：经抓包实操验证
+    </div>
+
+    <h2>一、为什么“免费节点”能成为黑客最具价值的情报渔网？</h2>
+    <p>
+      在公开网络中，运营一台国际千兆出口服务器需要持续支付机房托管费、IP 租用费以及昂贵的跨境海缆带宽成本。当一个节点面向全网完全免费开放，且无需注册、不限流量时，其搭建者必定存在非公开的变现路径。
+      根据实验室安全审计捕获的真实案例，绝大部分带有恶意的公开节点并非单纯为了“做慈善”，而是利用用户的信任建立起一个全流量镜像嗅探网。
+    </p>
+
+    <h2>二、三大核心攻击手法技术深度解构</h2>
+
+    <h3>1. SSLstrip 与明文 HTTP 会话嗅探</h3>
+    <p>
+      尽管当前大多数网站都启用了 HTTPS 加密，但在实际用户行为中，很多人依然习惯在浏览器地址栏直接输入 <code>baidu.com</code> 或 <code>example.com</code>，由服务器发送 301/302 重定向到 HTTPS。
+      恶意节点在充当网关时，能够截获最初发起的纯文本 HTTP 请求，并通过 <strong>SSLstrip（SSL剥离攻击）</strong>，阻断浏览器与目标网站建立 TLS 握手，使受害者始终在 HTTP 明文协议下通信。此时，受害者在网页中输入的用户名、密码、明文 Cookie 与短信验证码，均在节点服务器的日志中清晰可见。
+    </p>
+
+    <h3>2. 诱导信任恶意 CA 根证书的“深度解密”</h3>
+    <p>
+      更为高危的手法是伪装成“系统加速驱动”或“安全证书补丁”。部分流氓免费客户端会弹窗要求用户在 Windows 或 iOS 系统中安装并信任其生成的 Root CA 证书。
+      一旦根证书被系统受信任，该节点便能随时随地对受害者发起完整的 <strong>中间人攻击（Man-in-the-Middle, MITM）</strong>：使用伪造的证书实时解密受害者的所有加密 HTTPS 数据流，完成明文复制后再重新加密发送给目标网站。受害者浏览器上甚至依然会显示正常的“小锁”绿色安全标识，完全无法察觉自己的通信已被全盘监听。
+    </p>
+
+    <h3>3. 剪贴板劫持与下载文件木马捆绑替换</h3>
+    <p>
+      通过网络出口节点，攻击者可以对未校验数字签名的 HTTP 下载流量进行实时数据包注入（Packet Injection）。当用户通过免费节点下载软件安装包时，网关透明地将正规安装包替换为植入了后门木马的捆绑版（Trojan Dropper）。
+      此外，某些针对虚拟货币从业者的节点，会实时监测流量中的文本特征，利用中间人脚本篡改网页中显示的 BTC / USDT 充值地址，直接导致转账资金被盗。
+    </p>
+
+    <h2>三、蜜罐节点（Honeypot）是如何追踪定位你的？</h2>
+    <p>
+      除了经济犯罪，另一类公开免费节点被广泛用作“网络情报诱饵”。当用户连接到蜜罐节点后，节点端会触发自动化日志分析工具，记录以下三类指纹特征：
+    </p>
+    <ul>
+      <li><strong>真实国内公网 IP 与物理地域：</strong>用户客户端与节点建立握手的第一条物理连接必然包含国内宽带真实 IP；</li>
+      <li><strong>DNS 请求关联分析：</strong>即便你访问了海外加密网站，你同时发起的钉钉、微信、淘宝等国内应用的后台探测请求会暴露你的真实身份；</li>
+      <li><strong>TLS Client Hello 客户端指纹：</strong>分析你的操作系统内核、浏览器版本、加密套件排序，生成唯一的硬件画像。</li>
+    </ul>
+
+    <h2>四、安全防范与自保五大铁律</h2>
+    <ol>
+      <li><strong>永不安装任何来源不明的 CA 根证书：</strong>定期进入系统钥匙串或证书管理器排查异常颁发机构；</li>
+      <li><strong>强制开启浏览器“仅 HTTPS 模式”：</strong>在 Chrome 设置中打开“始终使用安全连接”，彻底杜绝 SSLstrip 降级；</li>
+      <li><strong>在分流客户端中开启严格局域网与国内直连：</strong>确保国内所有敏感应用绝对不经过任何代理节点；</li>
+      <li><strong>放弃幻想，选用正规商业专线：</strong>如果是为了工作、出海贸易或日常稳定使用，请彻底远离公开免费源。</li>
+    </ol>
+
+    <div style="background: var(--color-surface, rgba(0,0,0,0.02)); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; margin-top: 2.5rem;">
+      <h3 style="margin-top: 0; font-size: 1.15rem;">🛡️ 寻求真正安全稳定的网络加速方案？</h3>
+      <p style="font-size: 0.9rem; color: var(--color-muted); line-height: 1.6; margin-bottom: 1rem;">
+        商业专线机场采用独立点对点物理光纤，全流量内部隔离封装，无任何外部公网嗅探节点，从根本上杜绝了中间人监听与信息泄露风险。
+      </p>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="/works/guangsu/" class="button action-btn" style="text-decoration: none; color: #fff !important; font-size: 0.85rem; padding: 0.45rem 1rem;">查看光速云企业专线实测报告 &rarr;</a>
+        <a href="/free-nodes/" class="button" style="text-decoration: none; background: transparent; border: 1px solid var(--color-border); color: var(--color-fg); font-size: 0.85rem; padding: 0.45rem 1rem;">返回免费节点专题主页</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

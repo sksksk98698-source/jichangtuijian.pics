@@ -1,0 +1,275 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StructuredData from '../../../components/StructuredData.astro';
+import { withBase } from '../../../i18n';
+
+const title = 'TUN 虚拟网卡模式与系统代理的区别深度解析：为什么命令行与游戏必须开 TUN？ | 机场FAQ';
+const description = '为什么开启 Clash 后，浏览器能上网但 Git clone、终端 curl、Steam、Docker 和游戏依然连不上？深度剖析 OSI 七层模型中 Layer 3 虚拟网卡接管与应用层 HTTP 代理环境变量的本质鸿沟。';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  'headline': title,
+  'description': description,
+  'articleSection': '网络架构与协议底层',
+  'inLanguage': 'zh-CN'
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <StructuredData slot="head" schema={schema} />
+
+  <article class="article-container">
+    <header class="article-header">
+      <div class="breadcrumb">
+        <a href={withBase('/')}>首页</a>
+        <span class="sep">/</span>
+        <a href={withBase('/faq/')}>机场百科与高频 FAQ</a>
+        <span class="sep">/</span>
+        <span class="current">正文</span>
+      </div>
+      <span class="category-tag">底层网络原理剖析</span>
+      <h1>TUN 虚拟网卡模式与系统代理的区别深度解析：为什么命令行与游戏必须开 TUN？</h1>
+      <p class="meta">网络基础设施观测实验室 · 实测技术专刊 · 建议阅读时间 10 分钟</p>
+    </header>
+
+    <div class="article-body">
+      <p class="lead">
+        对于许多刚刚接触 Clash Verge Rev、Surge 或 Mihomo 的用户而言，客户端主界面上醒目的“系统代理（System Proxy）”与“TUN 模式（TUN Mode）”两个核心开关常常让人一头雾水。最典型的场景莫过于：明明已经打开了代理软件，甚至能在 Chrome 浏览器里飞速流畅播放 4K YouTube 视频，但只要打开 Windows 终端运行 <code>git clone</code> 或 <code>curl</code>，却依然无情报错“Connection refused”；启动 Steam、Epic 或联机游戏，依然提示网络不可达。这背后的核心根源在于<strong>网络数据包在操作系统 OSI 模型中不同层级的接管权限差异</strong>。
+      </p>
+
+      <h2>一、概念溯源：系统代理（System Proxy）到底做了什么？</h2>
+      <p>
+        当你在客户端中开启“系统代理”开关时，客户端实际上只做了一件极其微小的事情：<strong>向操作系统的网络设置注册表注入了一组环境变量</strong>。
+      </p>
+      <p>
+        例如在 Windows 系统中，它将系统的 HTTP/HTTPS/SOCKS 代理地址修改为了 <code>127.0.0.1:7890</code>。
+      </p>
+      <p>
+        <strong>系统代理的致命局限性：</strong>
+      </p>
+      <ul>
+        <li><strong>仅对“主动遵循系统设置”的应用生效：</strong>只有像 Edge、Chrome、Firefox 等桌面图形浏览器，或者少数显式声明遵循系统代理的应用，在发起网络请求前才会主动读取这组注册表，并将数据包封装为 HTTP Connect 代理报文发送给 7890 端口；</li>
+        <li><strong>对终端命令行完全无效：</strong>PowerShell、CMD、Linux Bash 终端中的绝大多数开发工具（如 <code>git</code>、<code>curl</code>、<code>wget</code>、<code>docker</code>、<code>npm</code>、<code>pip</code>）在设计之初为了保证纯粹性，默认完全无视操作系统的图形化代理设置，依然直接通过默认物理网卡向外发起裸连接；</li>
+        <li><strong>对游戏与私有 UDP 协议完全无效：</strong>像各类网游（Apex、绝地求生、GTA Online）以及 Steam 客户端的核心通信大多基于底层的裸 UDP 协议或私有二进制协议。系统代理根本不具备接管非 HTTP/SOCKS 流量的能力。</li>
+      </ul>
+
+      <h2>二、技术飞跃：TUN 虚拟网卡模式（Layer 3 接管）的本质</h2>
+      <p>
+        TUN（TUNnel）是操作系统内核级别支持的<strong>网络层（Layer 3）虚拟设备驱动</strong>。在 Windows 上通常依赖 <code>wintun.sys</code>，在 macOS 和 Linux 上则是内核原生的 <code>/dev/net/tun</code> 接口。
+      </p>
+      <p>
+        当你在 Clash 中开启 TUN 模式时，系统的底层网络拓扑发生了根本性重构：
+      </p>
+      <ol>
+        <li><strong>创建虚拟物理网卡：</strong>系统网络适配器列表中会凭空多出一张名为“Mihomo”或“Clash”的虚拟网卡；</li>
+        <li><strong>全局默认路由劫持（Default Route Hijacking）：</strong>TUN 驱动直接修改操作系统的核心路由表（Routing Table），将系统的默认网关指向这张虚拟网卡，并将其路由跃点数（Metric）设为最高优先级（如 Metric = 1）；</li>
+        <li><strong>真·全局透明捕获：</strong>此时，操作系统内核中发出的<strong>每一个原始 IP 数据包（无论来自浏览器、终端命令行、后台系统服务，还是各类 3D 联机大型游戏）</strong>，在离开内核协议栈的瞬间，全部无条件被虚拟网卡拦截并送入代理内核进行规则分流匹配。</li>
+      </ol>
+
+      <h2>三、全方位特性深度对比总览</h2>
+      <div class="table-wrap">
+        <table class="faq-compare-table">
+          <thead>
+            <tr>
+              <th>对比维度</th>
+              <th>传统系统代理模式 (System Proxy)</th>
+              <th>TUN 虚拟网卡模式 (TUN Mode)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>OSI 工作层级</strong></td>
+              <td>应用层 / 传输层 (Layer 4/7)</td>
+              <td>网络层 IP 层 (Layer 3)</td>
+            </tr>
+            <tr>
+              <td><strong>终端开发工具支持 (Git/Docker/Pip)</strong></td>
+              <td><span style="color:red;">默认完全不支持</span> (必须手动配置 export 变量)</td>
+              <td><span style="color:green;">原生完美无感支持</span> (开箱即用)</td>
+            </tr>
+            <tr>
+              <td><strong>联机游戏与全平台联机</strong></td>
+              <td><span style="color:red;">完全无法加速</span></td>
+              <td><span style="color:green;">原生全面接管 UDP/TCP 流量</span></td>
+            </tr>
+            <tr>
+              <td><strong>DNS 泄漏防御</strong></td>
+              <td>容易因本地 53 端口查询导致泄漏</td>
+              <td>通过 Fake-IP 全面拦截劫持，彻底绝缘泄漏</td>
+            </tr>
+            <tr>
+              <td><strong>系统权限要求</strong></td>
+              <td>普通用户权限即可修改</td>
+              <td>必须具备<strong>管理员权限 (Administrator / Root)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>系统休眠唤醒稳定性</strong></td>
+              <td>极易因未重置注册表导致浏览器断网</td>
+              <td>现代化 wintun 驱动可自动无感自愈重挂载</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>四、日常使用与开发者的黄金配置建议</h2>
+      <p>
+        <strong>1. 普通日常影音与网页浏览用户：</strong><br />
+        如果你的主要需求只是在浏览器里查资料、看视频、追美剧，开启传统的【系统代理】已经完全足够，其优势在于轻量、对本地网络驱动无入侵，且不需要管理员权限弹窗授权。
+      </p>
+      <p>
+        <strong>2. 程序员、外贸商务与游戏玩家：</strong><br />
+        强烈建议直接<strong>常驻开启 TUN 模式</strong>，并在客户端设置中<strong>关闭传统的系统代理开关</strong>！这样既能保证整个操作系统的所有流量（包括开发工具链、终端命令行、各种桌面端客户端）全部享受到免配置的透明代理加速，又能彻底告别因系统代理注册表残留导致的网页断网假死现象。
+      </p>
+    </div>
+
+    <footer class="article-footer">
+      <div class="related-box">
+        <h3>相关专题与导航</h3>
+        <p>深入了解更多技术细节，欢迎查阅：</p>
+        <div class="rel-links">
+          <a href={withBase('/faq/')}>&larr; 返回 机场百科与排错总览</a>
+          <a href={withBase('/faq/speedtest-fast-but-youtube-lag/')}>YouTube 4K 卡顿深度排查 &rarr;</a>
+          <a href={withBase('/faq/chatgpt-access-denied-solutions/')}>ChatGPT 1020 报错全解手册 &rarr;</a>
+          <a href={withBase('/clients/')}>查阅 全平台客户端下载与配置指南 &rarr;</a>
+        </div>
+      </div>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 4rem;
+  }
+  .article-header {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .breadcrumb {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin-bottom: 0.8rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .breadcrumb a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .category-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    background: rgba(201, 81, 53, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 0.8rem;
+  }
+  .article-header h1 {
+    font-size: 2rem;
+    line-height: 1.35;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+  }
+  .meta {
+    font-size: 0.88rem;
+    color: var(--color-muted);
+  }
+  .article-body {
+    font-size: 1.02rem;
+    line-height: 1.85;
+    color: #2c2c2c;
+  }
+  .lead {
+    font-size: 1.12rem;
+    line-height: 1.8;
+    color: var(--color-text);
+    background: #fbfbfa;
+    border-left: 4px solid var(--color-accent);
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 0 4px 4px 0;
+  }
+  .article-body h2 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin: 2.5rem 0 1rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.5rem;
+  }
+  .article-body ul, .article-body ol {
+    margin: 1rem 0 1.5rem 1.5rem;
+  }
+  .article-body li {
+    margin-bottom: 0.8rem;
+  }
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+  }
+  .faq-compare-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  .faq-compare-table th {
+    background: #f7f7f5;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+  .faq-compare-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    line-height: 1.6;
+  }
+  .article-body code {
+    background: #f4f4f3;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.88em;
+    font-family: var(--font-mono);
+  }
+  .article-footer {
+    margin-top: 3.5rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 2rem;
+  }
+  .related-box {
+    background: #fafaf9;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1.5rem;
+  }
+  .related-box h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.6rem;
+  }
+  .rel-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem 1.2rem;
+    margin-top: 1rem;
+  }
+  .rel-links a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  .rel-links a:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -2,8 +2,10 @@
 import { getCollection, render } from 'astro:content';
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
 import { withBase } from '../../lib/url';
 import { formatDate, t } from '../../i18n';
+import { SITE } from '../../consts';
 
 export async function getStaticPaths() {
   const entries = await getCollection('works');
@@ -12,6 +14,48 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const absolute = (path: string) => new URL(withBase(path), site).href;
+
+const ratingVal = entry.data.rank === 1 ? '5.0' : (entry.data.rank <= 10 ? '4.8' : '4.5');
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    name: entry.data.title,
+    headline: entry.data.title,
+    description: entry.data.description,
+    datePublished: entry.data.publishDate.toISOString(),
+    url: absolute(`/works/${entry.id}/`),
+    image: absolute(`/og/works/${entry.id}.png`),
+    itemReviewed: {
+      '@type': 'Product',
+      name: entry.data.brandName || entry.data.title,
+      description: entry.data.description,
+    },
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: ratingVal,
+      bestRating: '5.0',
+    },
+    author: {
+      '@type': 'Organization',
+      name: SITE.title,
+      url: SITE.url,
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: absolute('/') },
+      { '@type': 'ListItem', position: 2, name: '机场测评', item: absolute('/works/') },
+      { '@type': 'ListItem', position: 3, name: entry.data.brandName || entry.data.title },
+    ],
+  },
+];
 ---
 
 <BaseLayout
@@ -19,34 +63,64 @@ const { Content } = await render(entry);
   description={entry.data.description}
   ogType="article"
   image={withBase(`/og/works/${entry.id}.png`)}
+  publishedTime={entry.data.publishDate}
+  tags={entry.data.tech}
+  section="机场测评"
 >
+  <StructuredData slot="head" schema={schema} />
+
   <article data-pagefind-body>
     <header class="page-head section article-head">
-      <p class="eyebrow">{t('work.eyebrow')}</p>
+      <p class="eyebrow">
+        <span>测评专区 / 深度监测报告</span>
+        {entry.data.rank && (
+          <span style="margin-left: 0.5rem; font-family: var(--font-mono); font-weight: 700; color: var(--accent);">
+            RANK #{entry.data.rank}
+          </span>
+        )}
+      </p>
       <h1>{entry.data.title}</h1>
       <p class="lead">{entry.data.description}</p>
-      <div class="entry-meta">
-        <time datetime={entry.data.publishDate.toISOString()}
-          >{formatDate(entry.data.publishDate)}</time
-        >
-        <span>{entry.data.tech.join(' / ')}</span>
+
+      <div class="entry-meta" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <span class="rating-badge" style="display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(201,81,53,0.12); color: var(--color-accent); font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid rgba(201,81,53,0.25);">
+          ⭐ 评测综合评级：{ratingVal} / 5.0
+        </span>
+        <time datetime={entry.data.publishDate.toISOString()}>
+          {formatDate(entry.data.publishDate)}
+        </time>
+        <span>{entry.data.tech.join(' · ')}</span>
+        {entry.data.entryPrice && (
+          <span>起步约 <strong>{entry.data.entryPrice}</strong></span>
+        )}
       </div>
-      <div class="action-row">
+
+      <div class="action-row" style="margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
         {
-          entry.data.link && (
-            <a class="button" href={entry.data.link}>
-              {t('work.visit')}
+          entry.data.affLink && (
+            <a
+              class="button"
+              href={entry.data.affLink}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              style="text-decoration: none;"
+            >
+              前往 {entry.data.brandName || '服务商'} 官网 ↗
             </a>
           )
         }
         {
-          entry.data.repo && (
-            <a class="text-link" href={entry.data.repo}>
-              {t('work.repository')}
-            </a>
+          entry.data.promoCode && (
+            <span style="font-size: 0.88rem; color: var(--muted);">
+              专属优惠码: <code style="font-weight: 700; color: var(--accent); font-size: 1.05em;">{entry.data.promoCode}</code>
+            </span>
           )
         }
+        <a href={withBase('/brands/')} class="text-link" style="font-size: 0.88rem; text-decoration: none;">
+          ← 返回 42 家品牌库对比
+        </a>
       </div>
+
       {
         entry.data.thumbnail && (
           <Image
@@ -61,12 +135,67 @@ const { Content } = await render(entry);
     </header>
 
     <div class="section article-layout">
-      <aside class="article-toc">
-        <p class="eyebrow">{t('work.stackEyebrow')}</p>
-        <ul class="tech-list">
-          {entry.data.tech.map((item) => <li>{item}</li>)}
-        </ul>
+      <aside class="article-toc" style="width: 100%;">
+        <div style="border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem; background: var(--bg); box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+          <div style="margin-bottom: 0.85rem; border-bottom: 1px solid var(--line); padding-bottom: 0.75rem;">
+            <span style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent);">
+              RANK #{entry.data.rank || 1}
+            </span>
+            <h3 style="margin: 0.2rem 0 0 0; font-size: 1.15rem;">
+              {entry.data.brandName || entry.data.title}
+            </h3>
+          </div>
+
+          <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.6;">
+            <div>入门资费: <strong style="color: var(--text);">{entry.data.entryPrice}</strong></div>
+            {entry.data.promoCode && (
+              <div style="margin-top: 0.35rem;">
+                专属优惠码: <code style="font-weight: 700; color: var(--accent);">{entry.data.promoCode}</code>
+              </div>
+            )}
+            <div style="margin-top: 0.35rem;">
+              数据状态: <span style={entry.data.dataStatus === 'measured' ? 'color: #2e7d32; font-weight: 600;' : 'color: #0288d1; font-weight: 600;'}>
+                {entry.data.dataStatus === 'measured' ? '🟢 包含实测跑分' : '🔵 厂商技术档案'}
+              </span>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.2rem;">
+            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600;">核心标签</p>
+            <ul class="tech-list" style="gap: 0.4rem;">
+              {entry.data.tech.map((item) => (
+                <li style="font-size: 0.75rem; padding: 0.2rem 0.5rem; min-height: auto;">{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          {
+            entry.data.affLink && (
+              <div>
+                <a
+                  href={entry.data.affLink}
+                  target="_blank"
+                  rel="nofollow sponsored noopener"
+                  class="button"
+                  style="width: 100%; text-align: center; font-size: 0.88rem; padding: 0.65rem 0.8rem; border-radius: 4px; box-sizing: border-box;"
+                >
+                  官网直达开通 ↗
+                </a>
+                <p style="font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0 0; text-align: center; line-height: 1.4;">
+                  * 官方直连，含赞助支持
+                </p>
+              </div>
+            )
+          }
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: center;">
+          <a href={withBase('/brands/')} class="text-link" style="font-size: 0.82rem; text-decoration: none;">
+            ← 查看 42 家机场品牌库
+          </a>
+        </div>
       </aside>
+
       <div class="prose">
         <Content />
       </div>

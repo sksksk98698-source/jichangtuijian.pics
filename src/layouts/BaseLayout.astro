@@ -8,7 +8,7 @@ import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import { withBase } from '../lib/url';
-import { SITE, NAV_ITEMS } from '../consts';
+import { SITE, NAV_ITEMS, VERIFICATION } from '../consts';
 import { locale, navLabel, t } from '../i18n';
 import CodeCopy from '../components/CodeCopy.astro';
 import SocialLinks from '../components/SocialLinks.astro';
@@ -18,18 +18,37 @@ interface Props {
   description?: string;
   ogType?: 'website' | 'article';
   image?: string;
+  noindex?: boolean;
+  publishedTime?: string | Date;
+  modifiedTime?: string | Date;
+  author?: string;
+  section?: string;
+  tags?: string[];
 }
 
 const siteName = SITE.title;
 
-const { title = siteName, description = SITE.description, ogType = 'website', image } = Astro.props;
+const {
+  title = siteName,
+  description = SITE.description,
+  ogType = 'website',
+  image,
+  noindex = false,
+  publishedTime,
+  modifiedTime,
+  author = SITE.author,
+  section,
+  tags = []
+} = Astro.props;
 
 // `Astro.site` comes from `site` in astro.config.mjs; fall back to the
 // request URL during dev so canonical/OG links still resolve.
 const siteBase = Astro.site ?? new URL(Astro.url.origin);
-const canonicalURL = new URL(Astro.url.pathname, siteBase);
+const rawPath = Astro.url.pathname;
+const normalizedPath = rawPath.endsWith('/') || rawPath.includes('.') ? rawPath : `${rawPath}/`;
+const canonicalURL = new URL(normalizedPath, siteBase);
 const imageURL = image ? new URL(image, siteBase) : new URL(withBase(SITE.ogImage), siteBase);
-const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
+const fullTitle = title === siteName || title.includes(siteName) ? title : `${title} — ${siteName}`;
 
 const currentPath = Astro.url.pathname;
 const isActive = (href: string) => {
@@ -42,9 +61,21 @@ const isActive = (href: string) => {
 <html lang={locale}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    {noindex ? (
+      <meta name="robots" content="noindex, follow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    )}
     <meta name="generator" content={Astro.generator} />
+
+    {/* Search Engine Verification Tags (Rendered when configured) */}
+    {VERIFICATION.google && <meta name="google-site-verification" content={VERIFICATION.google} />}
+    {VERIFICATION.bing && <meta name="msvalidate.01" content={VERIFICATION.bing} />}
+    {VERIFICATION.baidu && <meta name="baidu-site-verification" content={VERIFICATION.baidu} />}
+    {VERIFICATION.shenma && <meta name="shenma-site-verification" content={VERIFICATION.shenma} />}
+
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
     <link rel="icon" href={withBase('/favicon.ico')} />
     <link rel="canonical" href={canonicalURL} />
@@ -62,6 +93,23 @@ const isActive = (href: string) => {
     {/* Open Graph wants `ja_JP`, not the `ja-JP` of `<html lang>`. */}
     <meta property="og:locale" content={locale.replace('-', '_')} />
     {imageURL && <meta property="og:image" content={imageURL} />}
+
+    {/* Article specific Open Graph metadata */}
+    {ogType === 'article' && publishedTime && (
+      <meta property="article:published_time" content={new Date(publishedTime).toISOString()} />
+    )}
+    {ogType === 'article' && modifiedTime && (
+      <meta property="article:modified_time" content={new Date(modifiedTime).toISOString()} />
+    )}
+    {ogType === 'article' && author && (
+      <meta property="article:author" content={author} />
+    )}
+    {ogType === 'article' && section && (
+      <meta property="article:section" content={section} />
+    )}
+    {ogType === 'article' && tags && tags.map((t) => (
+      <meta property="article:tag" content={t} />
+    ))}
 
     {/* Twitter */}
     <meta name="twitter:card" content={imageURL ? 'summary_large_image' : 'summary'} />
@@ -112,8 +160,11 @@ const isActive = (href: string) => {
     <footer class="site-footer">
       <p>{SITE.footerText}</p>
       <div class="footer-links">
-        <a href={withBase('/blog/')}>{t('footer.notes')}</a>
-        <a href="https://almanac.p4ni.com" target="_blank" rel="noopener noreferrer">Almanac ↗</a>
+        <a href={withBase('/about/')}>{t('nav.about')}</a>
+        <a href={withBase('/works/')}>{t('nav.works')}</a>
+        <a href={withBase('/faq/')}>高频FAQ</a>
+        <a href={withBase('/blacklist/')}>跑路预警</a>
+        <a href={withBase('/disclaimer/')}>免责声明与合规准则</a>
       </div>
       <SocialLinks />
     </footer>

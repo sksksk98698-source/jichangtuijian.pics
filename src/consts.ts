@@ -4,25 +4,32 @@
 import type { UIKey } from './i18n/en';
 
 export const SITE = {
-  /** BCP 47 language tag. Picks the UI dictionary in `src/i18n/`, and sets
-   *  `<html lang>`, date formatting, and the RSS feed language. Dictionaries
-   *  ship for `en` and `ja`; regional variants like `en-GB` reuse the base
-   *  language's strings while keeping their own date format. */
-  locale: 'en',
+  /** BCP 47 language tag. */
+  locale: 'zh-CN',
+  /** Site URL */
+  url: 'https://jichangtuijian.pics',
   /** Site name — used in the header brand, <title>, and og:site_name. */
-  title: 'Astro Keel',
+  title: '机场pics',
   /** Default meta description for pages that don't set their own. */
-  description: 'A minimal, neutral, and modern portfolio and blog theme for Astro.',
+  description: '机场pics (jichangtuijian.pics) - 专注高端机场评测、IPLC/IEPL专线节点实测与流媒体/AI解锁能力全方位可观测性数据分析。',
   /** Description of the RSS feed at /rss.xml. */
-  rssDescription: 'Notes, essays, and release logs from Astro Keel.',
+  rssDescription: '最新机场推荐评测、使用指南与网络加速技术精选。',
   /** Default social share image, relative to the site root (see public/). */
   ogImage: '/og.jpg',
-  /** Post author, emitted in JSON-LD BlogPosting structured data.
-   *  Leave empty ('') to omit the author field. */
-  author: 'Astro Keel',
+  /** Post author, emitted in JSON-LD BlogPosting structured data. */
+  author: '机场pics',
   /** Footer credit line. */
-  footerText: 'Built with Astro Keel.',
+  footerText: `© ${new Date().getFullYear()} 机场pics (jichangtuijian.pics). 保留所有权利。含推广赞助链接。`,
 } as const;
+
+/** Search engine verification tokens (Google Search Console, Bing Webmaster Tools, Baidu, Shenma).
+ *  Populate directly or through environment variables. If left empty, tags will not be rendered. */
+export const VERIFICATION = {
+  google: process.env.GOOGLE_SITE_VERIFICATION || '',
+  bing: process.env.BING_SITE_VERIFICATION || '',
+  baidu: process.env.BAIDU_SITE_VERIFICATION || '',
+  shenma: process.env.SHENMA_SITE_VERIFICATION || '',
+};
 
 /** Icons bundled with the theme — see `src/components/SocialLinks.astro`. */
 export type SocialIcon = 'github' | 'x' | 'linkedin' | 'rss' | 'email';
@@ -38,8 +45,7 @@ export interface SocialLink {
 /** Social profiles rendered as inline SVG icons in the footer.
  *  Add or remove entries here — no template edits needed. */
 export const SOCIAL_LINKS: readonly SocialLink[] = [
-  { label: 'GitHub', href: 'https://github.com/kpab/astro-keel', icon: 'github' },
-  { label: 'RSS feed', href: '/rss.xml', icon: 'rss' },
+  { label: 'RSS Feed', href: '/rss.xml', icon: 'rss' },
 ];
 
 /** Giscus — GitHub Discussions-backed comments on blog posts.
@@ -104,9 +110,15 @@ export type NavItem =
  *  localize through the UI dictionary; give a page you add yourself a literal
  *  `label` instead — one of the two is required. */
 export const NAV_ITEMS: readonly NavItem[] = [
-  { href: '/', labelKey: 'nav.home' },
-  { href: '/about/', labelKey: 'nav.about' },
-  { href: '/works/', labelKey: 'nav.works' },
-  { href: '/blog/', labelKey: 'nav.blog' },
-  { href: '/search/', labelKey: 'nav.search' },
+  { href: '/', label: '首页' },
+  { href: '/works/', label: '精选推荐' },
+  { href: '/brands/', label: '品牌库' },
+  { href: '/free-nodes/', label: '免费节点' },
+  { href: '/trial/', label: '免费试用' },
+  { href: '/blacklist/', label: '跑路预警' },
+  { href: '/faq/', label: '问答百科' },
+  { href: '/clients/', label: '客户端' },
+  { href: '/blog/', label: '专栏指南' },
+  { href: '/search/', label: '搜索' },
+  { href: '/about/', label: '测速准则' },
 ];

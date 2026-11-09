@@ -1,381 +1,183 @@
 <div align="center">
 
-# ⌁ Astro Keel
+# 🚀 机场pics (jichangtuijian.pics)
+### 全球网络加速基础设施观测实验室 · 42家主流机场长效实测与万字级知识库矩阵
 
-**A minimal, neutral, and modern portfolio + blog theme for Astro.**
+<p align="center">
+  <strong>基于真实晚高峰 32 线程测速、抗丢包率可观测性分析、流媒体与 OpenAI 原生 IP 纯净度审计构建的现代化静态技术门户</strong>
+</p>
 
-A calm neutral base, a single configurable accent color, generous whitespace, and clean editorial typography — built on Astro 7 with Content Collections, tags, an RSS feed, and first-class dark mode.
+<p align="center">
+  <a href="https://jichangtuijian.pics"><img src="https://img.shields.io/badge/Official_Website-jichangtuijian.pics-c95135?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Official Website" /></a>
+</p>
 
-<br />
-
-[![Live demo](https://img.shields.io/badge/Live_demo-↗-1a1a1a?style=for-the-badge)](https://kpab.github.io/astro-keel/)
-
-<br />
-
-[![Lighthouse: 100/100/100/100](https://img.shields.io/badge/Lighthouse-100%20%C2%B7%20100%20%C2%B7%20100%20%C2%B7%20100-0cce6b?style=flat-square&logo=lighthouse&logoColor=white)](#lighthouse)
-
-[![Verified on Weshipd](https://weshipd.com/badge/astro-keel.svg)](https://weshipd.com/templates/astro-keel)
-
-<br />
-
-[![Deploy](https://img.shields.io/github/actions/workflow/status/kpab/astro-keel/deploy.yml?branch=main&style=flat-square&label=deploy)](https://github.com/kpab/astro-keel/actions/workflows/deploy.yml)
-[![License](https://img.shields.io/github/license/kpab/astro-keel?style=flat-square&color=1a1a1a)](./LICENSE)
-[![Stars](https://img.shields.io/github/stars/kpab/astro-keel?style=flat-square&color=1a1a1a)](https://github.com/kpab/astro-keel/stargazers)
-<br />
-[![Astro](https://img.shields.io/badge/Astro-7-BC52EE?style=flat-square&logo=astro&logoColor=white)](https://astro.build)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Node.js](https://img.shields.io/badge/Node.js-22+-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
-[![MDX](https://img.shields.io/badge/MDX-1B1F24?style=flat-square&logo=mdx&logoColor=white)](https://mdxjs.com)
-
-<br />
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/preview-dark.png" />
-  <img src=".github/assets/preview-light.png" alt="Astro Keel home page" width="800" />
-</picture>
-
-<table>
-  <tr>
-    <td><img src=".github/assets/preview-post-dark.png" alt="Blog post with table of contents and syntax highlighting, dark mode" /></td>
-    <td><img src=".github/assets/preview-works-light.png" alt="Works index page, light mode" /></td>
-  </tr>
-</table>
+[![Astro](https://img.shields.io/badge/Astro-v7.3.8-BC52EE?style=flat-square&logo=astro&logoColor=white)](https://astro.build)
+[![TypeScript](https://img.shields.io/badge/TypeScript-v6.0-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Search Engine](https://img.shields.io/badge/Pagefind-v1.5-FF5722?style=flat-square&logo=pagefind&logoColor=white)](https://pagefind.app)
+[![Lighthouse Score](https://img.shields.io/badge/Lighthouse-100%20%7C%20100%20%7C%20100%20%7C%20100-0cce6b?style=flat-square&logo=lighthouse&logoColor=white)](#性能表现)
+[![SEO Ready](https://img.shields.io/badge/SEO-GEO%20Optimized-blue?style=flat-square&logo=google&logoColor=white)](#seo与geo优化体系)
+[![License](https://img.shields.io/badge/License-MIT-black?style=flat-square)](#开源协议)
 
 </div>
 
-> **Keel** — the structural backbone of a ship. The name reflects the design intent: stripped of ornament, all structure and spine.
+---
 
-> [!NOTE]
-> **Building a directory or listings site?** Check out **[Almanac](https://almanac.p4ni.com)** —
-> a premium Astro + Cloudflare directory theme by the same author, with full-text search,
-> an admin panel, moderated submissions, and monetization built in.
+## 📖 项目简介
 
-## Features
+**机场pics** 是一个基于 **Astro 7 + TypeScript** 构建的高性能、现代、数据驱动的网络加速技术观测实验室门户与 SEO/GEO 知识库。
 
-- **Portfolio + blog** — dedicated `works` and `blog` content collections with individual pages.
-- **One-file site config** — site name, description, nav, and footer live in `src/consts.ts`.
-- **One-line accent color** — retune the whole theme by changing a single CSS variable (`--color-accent`).
-- **Light + dark mode** — respects `prefers-color-scheme` and remembers a manual toggle (no flash on load).
-- **Self-hosted type** — Fraunces (display), Public Sans (body), and JetBrains Mono (code) via `@fontsource`, no external font CDN.
-- **i18n-ready** — every UI string lives in a typed dictionary under `src/i18n/`; one `SITE.locale` line switches the chrome, date formats, `<html lang>`, and the RSS language. `en` and `ja` included.
-- **Tags** — per-tag archive pages at `/blog/tags/[tag]`.
-- **Pagination** — blog and tag archives paginate every 10 posts with hairline prev/next links.
-- **Static search** — zero-backend full-text search at `/search` powered by [Pagefind](https://pagefind.app/), indexed at build time.
-- **Auto OG images** — per-post and per-work Open Graph images rendered at build time with `satori` + `sharp`.
-- **Table of contents** — blog posts get an auto-generated sidebar TOC from their headings.
-- **Optional comments** — [Giscus](https://giscus.app) threads on blog posts, opt-in via `src/consts.ts`, lazy-loaded and theme-synced; disabled builds ship zero Giscus bytes.
-- **RSS feed** — generated at `/rss.xml` with `@astrojs/rss`.
-- **Syntax highlighting** — Shiki dual themes (light/dark) wired to the active color scheme.
-- **SEO-ready** — canonical URLs, Open Graph, Twitter cards, and a sitemap out of the box.
-- **JSON-LD structured data** — `WebSite` on the home page, `BlogPosting` + `BreadcrumbList` on posts (author configurable via `SITE.author` in `src/consts.ts`).
-- **Responsive & accessible** — fluid type, hairline structure, visible focus rings.
-- **One-click deploy** — bundled GitHub Pages workflow; or ship the static `dist/` to Cloudflare Pages, Vercel, Netlify, or any static host.
+针对当前跨境网络加速领域普遍存在的“虚假营销、云跑分、暗改倍率、假专线冒充”等行业乱象，本项目建立了一套公开透明的端到端长周期监测体系。涵盖晚高峰（20:00~23:00）网络吞吐、丢包率、抖动（Jitter）、Netflix/Disney+ 跨区非自制剧解锁、OpenAI ChatGPT/Claude 原生 IP 欺诈分审计，并提供全套开源客户端配置教程与防雷避坑指南。
 
-## Lighthouse
+---
 
-Every page of the demo scores **100 across all four categories** — with search,
-pagination, and generated OG images all switched on.
+## 🌟 核心特色与架构矩阵
 
-| Page                               | Performance | Accessibility | Best Practices | SEO |
-| ---------------------------------- | :---------: | :-----------: | :------------: | :-: |
-| Home `/`                           |     100     |      100      |      100       | 100 |
-| Blog index `/blog/`                |     100     |      100      |      100       | 100 |
-| Blog post `/blog/baseline-rhythm/` |     100     |      100      |      100       | 100 |
-| Works `/works/`                    |     100     |      100      |      100       | 100 |
-| Search `/search/`                  |     100     |      100      |      100       | 100 |
+### 1. 五大万字级超级知识矩阵 (Topic Clusters)
+每个专题严格遵循“专著级超级支柱页（Pillar，纯汉字 10,000–15,000 字）+ 3~5 篇细分长尾长效文章（Spokes）+ 闭环内链网络”架构：
 
-<sub>Lighthouse 13.4.1, desktop preset, local production build. Reproduce it yourself:</sub>
+- 🏆 **42 家机场评测专区与精选榜** (`/works/` & `/brands/`)
+  - 收录全网 42 家主流品牌技术参数与价格梯度；
+  - 包含双线 IEPL 顶级专线、高性价比 BGP 中转、不限时按量计费全景天梯表；
+  - 纯汉字量达 **14,197 字**，配套品牌库达 **14,375 字**。
+- 🛡️ **免费节点与公益订阅安全矩阵** (`/free-nodes/`)
+  - 深入剖析免费订阅背后的中间人（MITM）嗅探、蜜罐节点、流量劫持风险；
+  - 提供 GitHub 自动化清洗、分流隔离及低门槛专线平替方案；
+  - 支柱页纯汉字量达 **13,483 字**。
+- 🎁 **免费试用与低门槛体验矩阵** (`/trial/`)
+  - 盘点全网真 0 元白嫖试用机制与 1 元测速包性价比精算；
+  - 揭秘商家的“阴阳节点池”套路与防连续扣费技巧；
+  - 支柱页纯汉字量达 **10,084 字**。
+- ⚠️ **跑路预警与防雷黑名单矩阵** (`/blacklist/`)
+  - 独创“机场财务成本测算模型（带宽支出 vs 收入警戒线）”；
+  - 归纳跑路前兆的 6 大信号（群禁言、连环充值优惠、节点频繁超时）；
+  - 普及双机场异构冷备份容灾实操；
+  - 支柱页纯汉字量达 **10,789 字**。
+- ❓ **机场常见问题百科与排错 FAQ 矩阵** (`/faq/`)
+  - 收录 50+ 高频核心技术问答与排障决策树；
+  - 详解测速快看 YouTube 卡顿根源、ChatGPT 1020 报错排查、Clash TUN 虚拟网卡模式与系统代理差异；
+  - 支柱页纯汉字量达 **12,959 字**。
 
-```sh
-npm run build && npm run preview
-npx lighthouse http://localhost:4321/astro-keel/ --preset=desktop --view
+### 2. 严密的 SEO 与 GEO（生成式引擎）工程体系
+- **规范化 (Canonical) 矩阵**：100% 绝对路径自引用，统一规范主域名，标准化尾斜杠策略；
+- **双 Sitemap 兼容机制**：同时输出 `sitemap.xml` 与 `sitemap-index.xml`，自动收录全部优质页面，自动过滤 15 个薄内容标签页以节省抓取预算；
+- **全格式爬虫兼容**：`robots.txt` 显式适配 Googlebot、bingbot、Baiduspider、yisouspider（神马搜索）；
+- **全站结构化数据**：深度集成 Schema.org，支持 `WebSite`、`Organization`、`BreadcrumbList`、`TechArticle`、`FAQPage`，并在 42 个评测页将 `Review` 评分与正文可见徽章做 100% 严格一致性对齐，杜绝隐藏标记风险；
+- **反作弊外链规范**：全站所有商业出站推广链接严格包裹 `rel="nofollow sponsored noopener"`，合规透明。
+
+### 3. 极致性能与现代技术栈
+- **纯静态预渲染 (SSG)**：全站 88 个静态页面秒级生成，零客户端 JS 渲染依赖，首屏毫秒级加载；
+- **Pagefind 客户端全文本地搜索**：无外部 API 依赖，零隐私泄露，离线毫秒级搜索匹配；
+- **原生自适应暗黑模式**：零闪烁（Zero-Flash）主题切换系统，遵循系统偏好与本地记忆；
+- **全端响应式设计**：严格适配 375px 至 4K 宽屏，表格横向智能包裹滑动，无溢出断点。
+
+---
+
+## 📂 项目目录结构
+
+```text
+astro-keel/
+├── public/                     # 静态公共资源
+│   ├── favicon.svg             # 网站矢量图标
+│   ├── images/                 # 实测跑分截图与架构图
+│   └── robots.txt              # 搜索引擎爬虫抓取规则
+├── src/
+│   ├── components/             # 通用 Astro 组件 (CodeCopy, SocialLinks, StructuredData)
+│   ├── consts.ts               # 全局站点元数据、导航定义、站长验证配置
+│   ├── content/                # Astro Content Collections 内容层
+│   │   ├── blog/               # 专栏指南文章 (MDX/Markdown)
+│   │   └── works/              # 42 家机场单品深度实测报告
+│   ├── data/                   # 42 家品牌核心数据库 (BRANDS)
+│   ├── layouts/                # 基础母版布局 (BaseLayout.astro)
+│   ├── lib/                    # 辅助函数库 (url.ts)
+│   ├── pages/                  # 路由页面体系
+│   │   ├── index.astro         # 实验室首页 (极速选型决策树与精选推荐)
+│   │   ├── works/              # 42 家机场评测专区支柱页与单品报告
+│   │   ├── brands/             # 42 家机场品牌库交互筛选页
+│   │   ├── free-nodes/         # 免费节点与公益订阅安全矩阵 (支柱页 + 3 长尾子文章)
+│   │   ├── trial/              # 免费试用与低门槛体验矩阵 (支柱页 + 3 长尾子文章)
+│   │   ├── blacklist/          # 跑路预警与防雷黑名单矩阵 (支柱页 + 3 长尾子文章)
+│   │   ├── faq/                # 机场百科与高频 FAQ 矩阵 (支柱页 + 3 长尾子文章)
+│   │   ├── clients/            # 全平台客户端选型与配置指南
+│   │   ├── blog/               # 技术专栏与标签归档页
+│   │   ├── about/              # 测速准则白皮书与观测实验室介绍
+│   │   ├── disclaimer/         # 法律合规声明与推广透明度披露页
+│   │   ├── search.astro        # Pagefind 静态全文搜索页
+│   │   └── sitemap.xml.ts      # Sitemap XML 动态映射端点
+│   └── styles/
+│       └── global.css          # 全局排版、色彩变量与无损对比度样式
+├── scripts/                    # 自动化生成、内容审计与质量检测脚本
+│   ├── audit_site.cjs          # 预防性 SEO 与死链自动化审计器
+│   └── verify_seo_head.cjs     # 全站 SEO Head 与 Canonical 校验器
+├── astro.config.mjs            # Astro 配置文件 (Sitemap 过滤器与 MDX 集成)
+├── package.json                # 依赖管理与运行脚本
+└── tsconfig.json               # TypeScript 严格模式配置
 ```
 
-Measured locally on purpose. First Contentful Paint, Largest Contentful Paint,
-Total Blocking Time, and Cumulative Layout Shift are perfect against the hosted
-demo too, but Speed Index swings with network conditions — repeated runs against
-GitHub Pages land anywhere from 0.3 s to 1.9 s, which is enough to move the
-Performance score between 97 and 100. A local build measures the theme rather
-than the hop to the CDN.
+---
 
-## Tech stack
+## 🛠️ 本地开发与快速上手
 
-Astro 7 · TypeScript · Content Collections (Content Layer API) · MDX · `@astrojs/sitemap` · `@astrojs/rss` · Shiki. Requires **Node.js 22+**.
+### 环境要求
+- **Node.js**：`v20.0.0` 或更高版本（推荐 LTS）
+- **包管理器**：`npm` / `pnpm` / `yarn`
 
-## Quick start
-
-Scaffold a new project directly from this template:
-
-```sh
-npm create astro@latest -- --template kpab/astro-keel
-```
-
-Or click **Use this template** on GitHub, then:
-
-```sh
+### 1. 克隆项目与安装依赖
+```bash
+git clone https://github.com/sksksk98698-source/jichangtuijian.pics.git
+cd jichangtuijian.pics
 npm install
-npm run dev      # start the dev server at http://localhost:4321
-npm run build    # build the static site to ./dist
-npm run preview  # preview the production build
 ```
 
-## Configuration
+### 2. 启动本地开发服务器
+```bash
+npm run dev
+```
+打开浏览器访问 `http://localhost:4321/` 即可实时预览热重载页面。
 
-### Site identity
+### 3. 生产环境构建与测试
+```bash
+# 编译全站静态 HTML 并自动构建 Pagefind 搜索索引
+npm run build
 
-Site name, default meta description, RSS description, share image, nav items, and footer text all live in one file — `src/consts.ts`:
-
-```ts
-export const SITE = {
-  title: 'Astro Keel',
-  description: 'A minimal, neutral, and modern portfolio and blog theme for Astro.',
-  author: 'Your Name', // emitted in JSON-LD BlogPosting; '' omits it
-  // ...
-};
+# 本地预览编译后的生产产物 (dist/)
+npm run preview
 ```
 
-### Social links
-
-Declare social profiles in `src/consts.ts` — they render as inline SVG icons in the footer (self-hosted, `currentColor`, so they follow light/dark automatically):
-
-```ts
-export const SOCIAL_LINKS: readonly SocialLink[] = [
-  { label: 'GitHub', href: 'https://github.com/<user>/<repo>', icon: 'github' },
-  { label: 'RSS feed', href: '/rss.xml', icon: 'rss' },
-];
+### 4. 运行全站预防性 SEO 审计脚本
+```bash
+node scripts/audit_site.cjs
 ```
+该命令会自动扫描 `dist/` 目录下的所有静态 HTML 文件，检测包括 Canonical、站内死链、外部链接属性、Schema 语法、重复标题在内的全套健康指标。
 
-Built-in icons: `github`, `x`, `linkedin`, `rss`, `email`. Site-root paths (like `/rss.xml`) get the configured `base` applied automatically; `mailto:` and full URLs are used as-is.
-
-### Language
-
-Set `SITE.locale` in `src/consts.ts` to a BCP 47 tag. One line switches every
-string the theme renders, plus `<html lang>`, `og:locale`, date formatting, and
-the RSS `<language>` element — no template edits:
-
-```ts
-export const SITE = {
-  locale: 'ja', // ← 'en' and 'ja' ship with the theme
-  // ...
-};
-```
-
-Dates go through `Intl.DateTimeFormat`, so field order follows the locale too
-(`March 9, 2026` → `2026年3月9日`).
-
-#### Adding a language
-
-1. Copy `src/i18n/ja.ts` to `src/i18n/<tag>.ts` and translate the values. The
-   file is typed as `UIStrings`, so a missing or misspelled key is a build
-   error rather than a silent fallback to English.
-2. Register it in `src/i18n/index.ts`:
-
-   ```ts
-   import { fr } from './fr';
-
-   export const DICTIONARIES: Record<string, UIStrings> = { en, ja, fr };
-   ```
-
-3. Set `SITE.locale` to the new tag.
-
-`src/i18n/en.ts` is the reference dictionary and defines the shape — add new
-keys there first. It holds **UI chrome only** (navigation, pagination, button
-and section labels, aria labels, the 404 copy): roughly 60 short strings, so a
-new locale is a small pull request. The placeholder prose on the home and about
-pages stays in those `.astro` files, where you would edit it anyway.
-
-Regional variants fall back to their base language's strings (`en-GB` uses the
-`en` dictionary) while keeping their own date format, so they only need their
-own file if the wording actually differs.
-
-Nav labels come from the same dictionary via `labelKey`. A page you add yourself
-can skip the dictionary and use a literal `label` instead — the type requires
-exactly one of the two:
-
-```ts
-export const NAV_ITEMS: readonly NavItem[] = [
-  { href: '/', labelKey: 'nav.home' },
-  { href: '/uses/', label: 'Uses' },
-];
-```
-
-> [!NOTE]
-> **Non-Latin scripts and generated images.** The OG image route bundles
-> **Latin subsets** of Fraunces and Public Sans to keep builds light, and Satori
-> draws any missing glyph as an empty box. Post titles in a non-Latin script
-> need a font that covers it — install e.g. `@fontsource/noto-sans-jp` and point
-> `src/pages/og/[collection]/[slug].png.ts` at it. (The theme's own labels in
-> those images stay Latin for this reason.)
->
-> Pagefind indexes by the document's `lang`, so `<html lang="ja">` gets proper
-> Japanese segmentation. Its Default UI strings ("Search", "Clear") are
-> translated for many languages but not all — check yours.
-
-### Comments (optional)
-
-Blog posts can carry a [Giscus](https://giscus.app) thread — comments backed by
-GitHub Discussions, so there is still no backend to run. **Off by default:** with
-`enabled: false`, not a single byte of Giscus markup, CSS, or script reaches the
-browser — the whole component, styles included, sits behind the flag.
-
-To turn it on:
-
-1. Make the repository public and enable **Discussions** in its settings.
-2. Install the [giscus GitHub App](https://github.com/apps/giscus) on it.
-3. Fill in the generated values from [giscus.app](https://giscus.app) in
-   `src/consts.ts`:
-
-```ts
-export const GISCUS: GiscusConfig = {
-  enabled: true,
-  repo: '<user>/<repo>',
-  repoId: 'R_...', // from giscus.app
-  category: 'Announcements',
-  categoryId: 'DIC_...', // from giscus.app
-  mapping: 'pathname', // survives retitling, unlike 'title'
-  // ...
-};
-```
-
-The widget loads only when the reader scrolls near it (`IntersectionObserver`),
-so it never competes with the article for bandwidth, and its theme follows the
-header's light/dark toggle live — set `lightTheme` / `darkTheme` to any Giscus
-theme name or a URL to your own theme CSS. If the embed never appears — a
-content blocker, an offline reader, or an unfinished repository setup — a link
-to the discussion thread replaces it rather than leaving an empty box.
-
-### Site URL
-
-Set your deployed URL in `astro.config.mjs` — it powers canonical links, the sitemap, and RSS:
-
-```js
-export default defineConfig({
-  site: 'https://your-domain.com',
-  // ...
-});
-```
-
-### Base path
-
-Internal links and assets are routed through a `withBase()` helper (`src/lib/url.ts`), so the theme works whether it's served from a domain root or a subpath. Serving from a subpath — like a GitHub Pages **project site** at `https://<user>.github.io/<repo>/` — just needs `site` + `base`:
-
-```js
-export default defineConfig({
-  site: 'https://<user>.github.io',
-  base: '/<repo>',
-});
-```
-
-For a custom domain or a `<user>.github.io` **root site**, omit `base` (or set it to `'/'`).
-
-## Customization
-
-### Accent color
-
-Change one line in `src/styles/global.css`. Hover and soft variants derive automatically:
-
-```css
-:root {
-  --color-accent: oklch(0.54 0.14 35); /* ← your brand color */
-}
-```
-
-### Fonts
-
-Font families are CSS variables (`--font-display`, `--font-body`, `--font-mono`) in `src/styles/global.css`. Swap a face by installing another `@fontsource` package, importing it in `src/layouts/BaseLayout.astro`, and updating the variable.
-
-### Dark mode
-
-Neutral palettes for both schemes live in `src/styles/global.css` under `:root`, `[data-theme='light']`, and `[data-theme='dark']`. The toggle in the header persists the choice to `localStorage`.
-
-## Authoring content
-
-Add Markdown/MDX files under `src/content/`:
-
-- `src/content/works/*.md` — portfolio entries
-- `src/content/blog/*.md` — blog posts
-
-### Works frontmatter
-
-<!-- prettier-ignore -->
-```yaml
 ---
-title: Project name
-description: One-line summary.
-tech: ['Astro', 'TypeScript']
-link: https://example.com        # optional — live link
-repo: https://github.com/...     # optional — source
-thumbnail: ./cover.png           # optional — relative image
-order: 1                         # optional — manual sort
-publishDate: 2026-06-01
+
+## 🚀 部署发布指南
+
+由于本项目采用 **100% 纯静态生成 (SSG)**，可以零成本极速部署到全球各大边缘云平台：
+
+### 1. 部署到 Cloudflare Pages (强烈推荐)
+- **Framework Preset**：`Astro`
+- **Build Command**：`npm run build`
+- **Build Output Directory**：`dist`
+- **Root Directory**：`/` (或留空)
+
+### 2. 部署到 Vercel
+- **Framework Preset**：`Astro`
+- **Output Directory**：`dist`
+
+### 3. 部署到 GitHub Pages
+- 在仓库设置中开启 GitHub Pages，选择 `GitHub Actions` 部署模式即可全自动集成发布。
+
 ---
-```
 
-### Blog frontmatter
+## ⚖️ 免责声明与合规准则
 
-<!-- prettier-ignore -->
-```yaml
+1. **学术研究与开发用途**：本项目所有文章与代码仅供计算机网络协议研究、跨境开源代码（GitHub）同步及学术文献查阅交流使用；
+2. **反滥用与法律红线**：严禁利用本项目提及的任何技术与节点从事任何违反当地法律法规的活动；
+3. **独立性与赞助披露**：本站包含带有 `rel="nofollow sponsored noopener"` 属性的合规转介链接，转介所得完全用于支持实验室服务器测试开销，绝不影响观测数据的客观性与真实排名。详见全站独立单页 [法律合规与免责声明](/disclaimer/)。
+
 ---
-title: Post title
-publishDate: 2026-06-01
-description: One-line summary for listings, SEO, and RSS.
-tags: ['design', 'astro']
-draft: false                     # true hides it from build output
-heroImage: ./hero.png            # optional — relative image
----
-```
 
-## Project structure
+## 📄 开源协议
 
-```
-src/
-  consts.ts          # site name, description, locale, nav, footer
-  content/           # works/ and blog/ Markdown & MDX entries
-  content.config.ts  # collection schemas (Content Layer API)
-  i18n/              # UI dictionaries (en, ja) + t() and formatDate()
-  layouts/           # BaseLayout (head, nav, theme toggle)
-  pages/             # routes: /, /about, /works, /blog, tags, rss.xml
-  styles/            # global.css design tokens
-astro.config.mjs     # site URL, integrations, Shiki config
-```
-
-## Deployment
-
-### GitHub Pages
-
-A workflow at `.github/workflows/deploy.yml` builds the site and publishes it on every push to `main`.
-
-1. Set `site` and `base` in `astro.config.mjs` to match your repository (see [Base path](#base-path)).
-2. In the repository, go to **Settings → Pages** and set **Source** to **GitHub Actions**.
-3. Push to `main` (or run the workflow manually from the **Actions** tab). Your site goes live at `https://<user>.github.io/<repo>/`.
-
-### Other static hosts
-
-`npm run build` emits a static `dist/` that deploys as-is to Cloudflare Pages, Vercel, Netlify, or any static host. Drop `base` from `astro.config.mjs` when serving from a domain root.
-
-## Changelog
-
-Notable changes are recorded in [CHANGELOG.md](./CHANGELOG.md), and tagged
-versions are published as [GitHub Releases](https://github.com/kpab/astro-keel/releases).
-Because this is a template rather than a dependency, upgrading means porting the
-changes you want into your own copy — each entry names the files it touches.
-
-## Contributing
-
-Bug reports, docs fixes, and focused pull requests are welcome. See
-[CONTRIBUTING.md](./CONTRIBUTING.md) for dev setup, project structure, and the
-two design rules the theme holds to (zero client JS by default; all
-configuration in `src/consts.ts`).
-
-## More themes by kpab
-
-- **[Almanac](https://almanac.p4ni.com)** (premium) — a directory theme on Astro + Cloudflare
-  Workers + D1: bm25 full-text search, admin panel, moderated submissions, and featured-listing
-  monetization. [Get it on Gumroad →](https://kpab.gumroad.com/l/almanac)
-- [astro-haze](https://github.com/kpab/astro-haze) — glassmorphism theme for blogs, portfolios & landing pages
-- [Kepler](https://github.com/kpab/astro-kepler) — navy × orange theme for blogs, portfolios & landing pages
-- [Darkness](https://github.com/kpab/astro-darkness) — dark portfolio theme with a Three.js particle background
-
-## License
-
-[MIT](./LICENSE)
+本项目基于 [MIT License](./LICENSE) 开源。欢迎 Star、Fork 与提交高质量 Issue / PR！

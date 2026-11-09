@@ -81,6 +81,10 @@ const schema = [
   description={entry.data.description}
   ogType="article"
   image={withBase(`/og/blog/${entry.id}.png`)}
+  publishedTime={entry.data.publishDate}
+  modifiedTime={entry.data.updatedDate || entry.data.publishDate}
+  tags={entry.data.tags}
+  section="网络专栏"
 >
   <StructuredData slot="head" schema={schema} />
   <article data-pagefind-body>

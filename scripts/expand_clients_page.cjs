@@ -1,0 +1,1212 @@
+const fs = require('fs');
+const path = require('path');
+
+const clientsPath = path.join(__dirname, '../src/pages/clients/index.astro');
+
+const content = `---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
+import { withBase } from '../../lib/url';
+import { SITE } from '../../consts';
+
+const title = '2026 全平台机场代理客户端大全与选型指南 — Windows / macOS / iOS / Android / 软路由';
+const description = '机场pics专著级全平台代理客户端选型与配置指南：深度横向评测Clash Verge Rev、Shadowrocket小火箭、Sing-box、Surge、Loon等16款主流工具，提供TUN虚拟网卡调优、DNS防泄漏、安卓后台保活及软路由透明代理实战教程。';
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const absolute = (path: string) => new URL(withBase(path), site).href;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: '2026 全平台网络加速代理客户端大全与深度配置指南',
+    description: description,
+    url: absolute('/clients/'),
+    publisher: {
+      '@type': 'Organization',
+      name: SITE.title,
+      url: SITE.url,
+      logo: absolute('/favicon.svg'),
+    },
+    about: [
+      { '@type': 'Thing', name: 'Clash Verge Rev' },
+      { '@type': 'Thing', name: 'Shadowrocket' },
+      { '@type': 'Thing', name: 'Sing-box' },
+      { '@type': 'Thing', name: '代理客户端配置与排障' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: absolute('/') },
+      { '@type': 'ListItem', position: 2, name: '客户端选型与配置指南', item: absolute('/clients/') },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: '为什么强烈建议使用第三方开源客户端，而不是机场自研定制客户端？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '第三方开源客户端（如 Clash Verge Rev、Sing-box）代码公开可审计，不存在后门或强制搜集隐私的风险；支持同时导入多家机场订阅，实现跨服务商故障容灾；支持精确的分流规则与广告拦截。而机场自研客户端通常闭源混淆，只能登录单一机场，一旦机场跑路或线路故障，客户端直接瘫痪。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '系统代理模式 (System Proxy) 与 TUN 虚拟网卡模式有何本质不同？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '系统代理模式仅在操作系统中修改 HTTP/HTTPS 代理环境变量，只对支持系统代理的浏览器和部分应用生效，命令行终端、Git、UWP 应用及在线游戏完全无法被代理；而 TUN 虚拟网卡模式会在系统内虚拟一张物理网卡，在三层网络（网络层）拦截全部 IP 报文，实现全局接管与零穿透漏包。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '开启代理客户端后微信或国内网页打不开怎么解决？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '这是由于分流规则未生效或处于全局代理（Global）模式导致的。请在客户端内将路由模式切换为“规则分流 (Rule)”，并确保规则集中启用了针对 geoip:cn 和 geosite:cn 的直连（Direct）规则；同时在本地 DNS 设置中配置国内常用 DNS（如 223.5.5.5）以保证国内域名解析不绕道。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '在公共订阅转换网站（Subconverter）转换链接会有什么安全风险？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '公共第三方订阅转换网站的服务器后端能够完整记录你的订阅 URL、节点 Token 及所有服务器 IP。恶意运营者会批量收集这些 Token 盗刷你的流量，甚至替换节点信息植入中间人抓包配置。强烈建议使用客户端内置的原生订阅解析功能，或在本地 Docker 中自建转换后端。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'iOS 端 Shadowrocket（小火箭）息屏后经常断连是什么原因？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'iOS 激进的后台电池管理机制会在锁屏后挂起 VPN 网络进程。解决方法是在小火箭设置中开启“按需连接 (On Demand)”，并关闭 iPhone 的“低电量模式”，确保手机从休眠唤醒后系统瞬间恢复网络隧道。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Android 安卓手机频繁断流掉线如何彻底排查？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '国产定制系统（如小米澎湃、华为鸿蒙、OPPO ColorOS、vivo OriginOS）会自动杀死后台 VPN 进程。必须在系统设置中为代理软件开启：1. 允许后台自启动；2. 电池优化设置为“无限制”；3. 在多任务后台卡片界面对该应用执行“加锁保护”。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'macOS 上使用 Clash Verge Rev 提示需要授权安装服务模式怎么处理？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'TUN 虚拟网卡需要操作系统内核级权限。在 macOS 设置中点击“安装服务模式 (Service Mode)”，在系统弹出的安全窗口中输入开机密码授权安装 Helper 守护进程即可；同时需确认系统“隐私与安全性”中已允许网络扩展组件运行。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '客户端测出的延迟只有 20ms，为什么实际打开网页非常缓慢？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '客户端默认的测速通常是 TCP Ping，测出的仅仅是本地电脑连接到机场位于国内（如深圳、上海）中转入口服务器的耗时，完全没有反映境外跨境海缆和海外机房的真实延迟。真实网页打开速度必须参考本站基于完整端到端长周期的晚高峰实测数据。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '如何在软路由（OpenWrt）上配置透明代理供大屏电视和游戏机使用？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '在软路由中安装 OpenClash 或 PassWall 插件，工作模式选择 TPROXY 或 REDIR-HOST/Fake-IP 混合模式，开启局域网 DNS 劫持；针对大屏电视（Apple TV、Google TV）必须在客户端 DNS 配置中启用 filter-aaaa 过滤 IPv6 解析，防止因公网 IPv6 直连泄露位置导致流媒体锁区。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Clash for Windows 停更后目前 Windows 桌面端最好的替代品是什么？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '目前最佳替代方案是开源的 Clash Verge Rev。它基于活跃维护的 Clash Meta (Mihomo) 内核重构，原生支持完整的 TUN 模式、Shadowsocks 2022、VLESS-Reality 及 Hysteria 2 协议，界面现代化且完全开源无广告，支持一键无缝导入旧版 Clash 订阅。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '什么是代理内核中的 Fake-IP 模式？它有什么独特优势？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Fake-IP 模式下，客户端在接收到本地 DNS 查询时不向公网发送真实解析请求，而是立即在保留网段（如 198.18.0.1/16）返回一个虚拟 IP 给系统，实现 0 毫秒即时响应，彻底杜绝本地 DNS 污染劫持；真实域名随加密隧道发送至海外落地服务器进行安全递归解析。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '使用代理客户端会导致网络安全软件或杀毒软件报警吗？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '部分第三方通用客户端由于需要创建虚拟网卡（TUN/TAP）并修改系统网络路由表，可能会触发火绒或 360 等安全软件的“网络防护警告”。只要下载源来自官方 GitHub Releases 发布页，均属正常系统级网络配置行为，添加信任白名单即可放心使用。',
+        },
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <StructuredData slot="head" schema={schema} />
+
+  <!-- 头部：权威全平台客户端选型导言 -->
+  <section class="page-head section">
+    <p class="eyebrow">工具库 / 跨平台网络代理生态全景指南</p>
+    <h1>2026 全平台机场代理客户端选型与深度配置指南</h1>
+    <p class="lead">
+      无论购买了多么顶级的高品质 IEPL 专线，<strong>本地代理客户端的架构与参数配置</strong>始终是决定网络体验上限的临门一脚。本指南系统解构 Windows、macOS、iOS、Android、Linux 及软路由等六大生态的主流代理工具，深度剖析第三方通用开源客户端与机场定制客户端的技术差异、TUN 虚拟网卡调优、DNS 防泄漏与各平台避坑防断流配置，为各类数字工作者与开发者提供终极配置参考。
+    </p>
+
+    <!-- 目录导航胶囊 -->
+    <div class="toc-pills">
+      <span class="toc-label">快速跳转导航：</span>
+      <a href="#quick-decision">3分钟选型速查</a>
+      <a href="#comparison-table">全要素对比大表</a>
+      <a href="#open-vs-custom">开源 vs 自研客户端</a>
+      <a href="#windows-guide">Windows 深度实操</a>
+      <a href="#macos-guide">macOS 实践指南</a>
+      <a href="#ios-guide">iOS / iPadOS 配置</a>
+      <a href="#android-guide">Android 保活白名单</a>
+      <a href="#linux-router-guide">Linux 与软路由</a>
+      <a href="#subconverter-security">订阅转换安全</a>
+      <a href="#troubleshooting-tree">8大报错排障决策树</a>
+      <a href="#client-faq">核心技术FAQ</a>
+    </div>
+  </section>
+
+  <!-- 模块一：开头直接给答案：全平台代理客户端 3 分钟选型速查表 -->
+  <section class="section" id="quick-decision">
+    <div class="section-title">
+      <span class="step-num">01</span>
+      <h2>开头直接给答案：全平台代理客户端 3 分钟选型速查</h2>
+    </div>
+    <p class="section-desc">
+      现代网络加速体验由“云端节点质量”与“本地终端客户端架构”共同决定。再优质的专线，若客户端配置不当也会频繁断流；而一款调优得当的高性能客户端能最大程度发挥物理链路的低延迟与高吞吐优势。请根据你的操作系统直接查阅精选推荐方案：
+    </p>
+
+    <div class="card-grid">
+      <div class="summary-box">
+        <h3>Windows 电脑 (Win 10 / 11)</h3>
+        <p><strong>首选推荐：</strong><strong>Clash Verge Rev</strong> (基于 Mihomo 内核)</p>
+        <p><strong>推荐理由：</strong>原生支持 TUN 虚拟网卡三层全局接管、规则分流灵活、内存占用低，完全取代已停更的 Clash for Windows。</p>
+        <p class="badge-row"><span class="badge blue">新手与进阶首选</span><span class="badge">技术极客备选：v2rayN</span></p>
+        <a class="button action-btn" href="#windows-guide">查看 Windows 深度配置指南 &rarr;</a>
+      </div>
+
+      <div class="summary-box">
+        <h3>macOS 苹果电脑 (Intel &amp; M系列芯片)</h3>
+        <p><strong>首选推荐：</strong><strong>Clash Verge Rev for Mac</strong> / <strong>Surge Mac</strong></p>
+        <p><strong>推荐理由：</strong>原生 Apple Silicon arm64 架构极速适配，Enhanced Mode 增强模式完全绕过系统沙盒限制，功耗控制极佳。</p>
+        <p class="badge-row"><span class="badge blue">免费首选：Clash Verge Rev</span><span class="badge">商业旗舰：Surge 5</span></p>
+        <a class="button action-btn" href="#macos-guide">查看 macOS 深度配置指南 &rarr;</a>
+      </div>
+
+      <div class="summary-box">
+        <h3>iPhone / iPad (iOS &amp; iPadOS)</h3>
+        <p><strong>首选推荐：</strong><strong>Shadowrocket (小火箭)</strong> / <strong>Loon</strong></p>
+        <p><strong>推荐理由：</strong>生态成熟、协议支持最全（支持 SS 2022、VLESS、Trojan、Hysteria 2），On Demand 按需连接息屏永不断流。</p>
+        <p class="badge-row"><span class="badge blue">国民神器：小火箭 (需美区ID)</span><span class="badge">高级分流：Quantumult X</span></p>
+        <a class="button action-btn" href="#ios-guide">查看 iOS 深度配置指南 &rarr;</a>
+      </div>
+
+      <div class="summary-box">
+        <h3>Android 安卓手机 / 平板</h3>
+        <p><strong>首选推荐：</strong><strong>Clash Meta for Android (CMFA)</strong> / <strong>Sing-box</strong></p>
+        <p><strong>推荐理由：</strong>针对国产定制 ROM 深度适配后台保活，支持分应用代理（Split Tunneling），微信网银秒开不冲突。</p>
+        <p class="badge-row"><span class="badge blue">全面稳定：Clash Meta</span><span class="badge">极简轻量：Sing-box</span></p>
+        <a class="button action-btn" href="#android-guide">查看 Android 深度配置指南 &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 模块二：全平台 16 款主流代理客户端全要素横向对比大表（核心对比表） -->
+  <section class="section" id="comparison-table">
+    <div class="section-title">
+      <span class="step-num">02</span>
+      <h2>全平台主流网络代理客户端全要素横向对比大表</h2>
+    </div>
+    <p class="section-desc">
+      涵盖当前主流的 16 款代理工具，从支持平台、底层内核引擎、通信协议支持度、TUN 虚拟网卡支持、分流规则定制能力、维护活跃度到官方获取途径进行全维度客观对比：
+    </p>
+
+    <div class="table-container">
+      <table class="observatory-table">
+        <thead>
+          <tr>
+            <th>客户端名称</th>
+            <th>适配操作系统</th>
+            <th>底层网络内核</th>
+            <th>主流协议支持范围</th>
+            <th>TUN虚拟网卡</th>
+            <th>分流规则深度</th>
+            <th>获取门槛与费用</th>
+            <th>推荐等级与典型场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Clash Verge Rev</strong></td>
+            <td>Windows / macOS / Linux</td>
+            <td>Mihomo (Clash Meta)</td>
+            <td>SS(2022) / VLESS-Reality / Trojan / Hys2 / TUIC</td>
+            <td><span class="tag-status measured">原生支持 (一键开启)</span></td>
+            <td>极其丰富 (YAML / 脚本扩展)</td>
+            <td><strong>完全开源免费</strong></td>
+            <td>⭐⭐⭐⭐⭐ <strong>全平台桌面端首选标杆</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Shadowrocket (小火箭)</strong></td>
+            <td>iOS / iPadOS / macOS</td>
+            <td>自研混合高性能内核</td>
+            <td>全协议支持 (含 Hysteria 2 / TUIC)</td>
+            <td><span class="tag-status measured">原生支持 (系统VPN)</span></td>
+            <td>非常成熟 (规则集自动更新)</td>
+            <td>美区 AppStore ($2.99 买断)</td>
+            <td>⭐⭐⭐⭐⭐ <strong>苹果移动端国民级首选</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Sing-box</strong></td>
+            <td>Win / Mac / iOS / Android / Linux</td>
+            <td>Sing-box 官方独立内核</td>
+            <td>全协议极致优化 (规范支持最新)</td>
+            <td><span class="tag-status measured">支持 (独立虚拟驱动)</span></td>
+            <td>二进制规则集 (.srs 极速匹配)</td>
+            <td><strong>完全开源免费</strong></td>
+            <td>⭐⭐⭐⭐⭐ <strong>跨平台轻量级与技术极客首选</strong></td>
+          </tr>
+          <tr>
+            <td><strong>v2rayN</strong></td>
+            <td>Windows</td>
+            <td>Xray / Sing-box / Mihomo</td>
+            <td>全协议支持 (可自由切换内核)</td>
+            <td><span class="tag-status measured">支持 (需配置服务)</span></td>
+            <td>良好 (内置路由规则树)</td>
+            <td><strong>完全开源免费</strong></td>
+            <td>⭐⭐⭐⭐ <strong>Windows 老牌多内核工具</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Surge 5</strong></td>
+            <td>macOS / iOS</td>
+            <td>Surge 专用商业闭源内核</td>
+            <td>SS / Trojan / Snell / VMess (不支持VLESS)</td>
+            <td><span class="tag-status measured">业界最高水准 TUN</span></td>
+            <td>顶级 (支持 JavaScript 脚本控制)</td>
+            <td>商业授权 ($49.99 起)</td>
+            <td>⭐⭐⭐⭐⭐ <strong>macOS 顶级网络调试与生产力工具</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Loon</strong></td>
+            <td>iOS / iPadOS / macOS</td>
+            <td>自研高性能低功耗内核</td>
+            <td>SS / Trojan / VMess / VLESS-Reality / Hys2</td>
+            <td><span class="tag-status measured">原生支持</span></td>
+            <td>支持插件化脚本与重写</td>
+            <td>美区 AppStore ($5.99 买断)</td>
+            <td>⭐⭐⭐⭐ <strong>高颜值与强大插件生态</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Quantumult X</strong></td>
+            <td>iOS / iPadOS / macOS</td>
+            <td>自研高效纯 C 内核</td>
+            <td>SS / Trojan / VMess / HTTP09</td>
+            <td><span class="tag-status measured">原生支持</span></td>
+            <td>深度正则匹配与重写</td>
+            <td>美区 AppStore ($7.99 买断)</td>
+            <td>⭐⭐⭐⭐ <strong>重度规则折腾与脚本玩家</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Clash Meta for Android</strong></td>
+            <td>Android</td>
+            <td>Mihomo (Meta) 内核</td>
+            <td>全协议支持 (含 Hysteria 2 / Reality)</td>
+            <td><span class="tag-status measured">原生支持 (VpnService)</span></td>
+            <td>与桌面端配置完全兼容</td>
+            <td><strong>完全开源免费</strong></td>
+            <td>⭐⭐⭐⭐⭐ <strong>安卓端功能最完善的客户端</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Hiddify Next</strong></td>
+            <td>全平台 (Win/Mac/iOS/Android/Linux)</td>
+            <td>Sing-box 内核包装</td>
+            <td>主流现代通信协议全覆盖</td>
+            <td><span class="tag-status measured">一键开启</span></td>
+            <td>内置常用开箱即用规则</td>
+            <td><strong>完全开源免费</strong></td>
+            <td>⭐⭐⭐⭐ <strong>全平台统一交互极简工具</strong></td>
+          </tr>
+          <tr>
+            <td><strong>OpenClash / PassWall</strong></td>
+            <td>OpenWrt 路由器固件</td>
+            <td>Mihomo / Xray / Sing-box</td>
+            <td>依路由器 CPU 架构与插件版本决定</td>
+            <td><span class="tag-status measured">TPROXY 全局透明代理</span></td>
+            <td>全屋设备精细化分流</td>
+            <td><strong>完全开源免费</strong></td>
+            <td>⭐⭐⭐⭐⭐ <strong>全屋智能设备与电视主机首选</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box">
+      <strong>版本防坑提醒：</strong>曾风靡一时的 <strong>Clash for Windows</strong> 与 <strong>ClashX</strong> 原作者已于 2023 年秋季彻底删除代码并停止维护。请切勿从不可信的百度搜索、第三方下载站下载所谓的“Clash for Windows 汉化破解版”，此类软件包已被证实大量捆绑远控后门与挖矿程序！目前社区官方公认的唯一正统继承者为开源活跃的 <strong>Clash Verge Rev</strong>。
+    </div>
+  </section>
+
+  <!-- 模块三：开源第三方客户端 vs 机场自研定制客户端深度审计 -->
+  <section class="section" id="open-vs-custom">
+    <div class="section-title">
+      <span class="step-num">03</span>
+      <h2>开源第三方客户端 vs 机场自研定制客户端深度对比与安全性审计</h2>
+    </div>
+    <p>
+      在选购网络加速服务时，用户经常看到部分机场在首页醒目推崇“本站专属一键客户端”，而技术论坛和资深开发者却坚决主张使用“开源第三方通用客户端”。两者在底层逻辑上存在根本性的理念冲突：
+    </p>
+
+    <div class="table-container">
+      <table class="observatory-table">
+        <thead>
+          <tr>
+            <th>对比考量维度</th>
+            <th>第三方开源通用客户端 (如 Clash Verge Rev / Sing-box)</th>
+            <th>机场专属自研定制客户端 (一键登录客户端)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>代码透明度与安全性</strong></td>
+            <td><strong>100% 开源可查。</strong>全球数万名开发者共同审查代码，绝无恶意后门、劫持证书或静默挖矿可能。</td>
+            <td><strong>高度混淆闭源。</strong>通常由第三方外包打包，无法得知其在后台是否搜集浏览器历史、硬件特征及通信明文。</td>
+          </tr>
+          <tr>
+            <td><strong>多服务商容灾能力</strong></td>
+            <td><strong>完美支持多订阅聚合。</strong>用户可同时导入 3 家不同机场的节点，设置自动故障切换策略，一家故障秒切备用。</td>
+            <td><strong>完全锁死绑定。</strong>仅支持登录该机场自身账号，一旦该机场跑路或线路遭遇大面积故障，客户端直接沦为废铁。</td>
+          </tr>
+          <tr>
+            <td><strong>分流规则与广告拦截</strong></td>
+            <td><strong>极致自由精细。</strong>支持数十万条规则分流、本地 DNS 防劫持、国内直连秒开、屏蔽恶性弹窗与追踪脚本。</td>
+            <td><strong>极其简陋粗糙。</strong>通常只有“全局”和“绕过大陆”两个简单开关，经常导致国内微信掉线或海外流媒体锁区。</td>
+          </tr>
+          <tr>
+            <td><strong>系统资源与内存控制</strong></td>
+            <td>采用现代 C++/Rust/Go 优化架构，内存控制在几十兆至百兆，CPU 占用低于 1%。</td>
+            <td>普遍采用老旧的 Electron 框架简单套壳，开机自启动辄占用数百兆内存，发热明显。</td>
+          </tr>
+          <tr>
+            <td><strong>上手学习使用门槛</strong></td>
+            <td>需要复制订阅链接导入并理解基础的策略组概念，初次配置需 2-3 分钟。</td>
+            <td>输入账号密码即可一键连接，适合完全不懂网络原理的纯小白入门过渡。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note-box">
+      <strong>实验室安全定性建议：</strong>对于仅用于偶尔查阅资料的小白用户，自研客户端可以作为快速上手的“临时跳板”；但对于长期外贸办公、代码开发、金融投资或注重个人隐私安全的技术人员，<strong>坚决使用第三方开源通用客户端</strong>是唯一合规且可靠的选择。
+    </div>
+
+    <h3>客户端底层对称加密算法与终端 CPU 功耗跑分解析</h3>
+    <p>
+      代理数据包在进出客户端时，都需要进行实时的对称加解密运算。在不同硬件架构（x86 电脑 vs ARM 手机/软路由）下，选用不同的加密算法会对设备的 CPU 占用、发热量及续航产生直接影响：
+    </p>
+    <div class="table-container">
+      <table class="observatory-table">
+        <thead>
+          <tr>
+            <th>加密算法类型</th>
+            <th>底层数学与安全标准</th>
+            <th>Intel / AMD x86 电脑表现</th>
+            <th>ARM 手机 / 电视盒子表现</th>
+            <th>推荐硬件与场景配比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>AES-128-GCM / 256-GCM</strong></td>
+            <td>NIST 国际工业级对称加密标准</td>
+            <td><strong>极速 (支持 AES-NI 硬件指令集加速)</strong></td>
+            <td>良好 (新一代 ARMv8 支持硬件扩展)</td>
+            <td><strong>桌面电脑与现代高端手机首选</strong>。在具备硬件加速的电脑上，吞吐量可达数 GB/s，CPU 占用近乎于零。</td>
+          </tr>
+          <tr>
+            <td><strong>ChaCha20-Poly1305</strong></td>
+            <td>由著名密码学家 Daniel J. Bernstein 设计</td>
+            <td>优秀 (纯软件运算极度平滑)</td>
+            <td><strong>极致高效 (无硬件加速亦飞速)</strong></td>
+            <td><strong>低端老款手机、软路由、树莓派及电视盒子首选</strong>。纯算法优化，即便没有 AES-NI 硬件芯片，也不会发生发热降频。</td>
+          </tr>
+          <tr>
+            <td><strong>2022-blake3-aes-128-gcm</strong></td>
+            <td>Shadowsocks 2022 最新规范，引入 BLAKE3 高速哈希校验</td>
+            <td>极致高效</td>
+            <td>极致高效</td>
+            <td><strong>高品质专线机场首选标配</strong>。杜绝了重放攻击与前向安全性漏洞，是现代专线网络最高安全与性能标准。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 模块四：Windows 桌面端全流程深度实操与底层网络调优 -->
+  <section class="section" id="windows-guide">
+    <div class="section-title">
+      <span class="step-num">04</span>
+      <h2>Windows 桌面端全流程实操与底层网络调优 (Clash Verge Rev)</h2>
+    </div>
+    <p>
+      Windows 操作系统由于庞大的历史软件兼容包袱，系统原生代理仅支持简单的 WinINet 协议。很多常用开发工具（Git、PowerShell、Docker、WSL2、SSH）和游戏客户端默认不走系统代理。必须通过 TUN 虚拟网卡实现内核级三层网络流量接管。
+    </p>
+
+    <h3>1. Clash Verge Rev 标准化安装三步法</h3>
+    <ol>
+      <li><strong>下载与安装：</strong>前往其官方开源仓库，下载 <code>x64-setup.exe</code> 安装包。安装完成后启动软件。</li>
+      <li><strong>安装服务模式 (Service Mode)：</strong>点击软件左侧“设置” &rarr; 找到“服务模式” &rarr; 点击“安装”。服务模式成功安装后图标将变为绿色激活状态，此步骤是赋予软件无提权创建 TUN 虚拟网卡的核心前置条件。</li>
+      <li><strong>一键开启 TUN 模式：</strong>在设置页面将“TUN 模式”开关打开，并将堆栈模式设置为 <code>gvisor</code> 或 <code>mixed</code>。此时 Windows 适配器列表中会出现名为 <code>Mihomo</code> 的虚拟网卡，全系统流量正式进入加密分流隧道。</li>
+    </ol>
+
+    <h3>2. 系统代理 (System Proxy) vs TUN 模式抓包级底层差异</h3>
+    <p>
+      为了搞清楚为什么有些软件死活不走代理，我们通过网络分层模型剖析其本质差异：
+    </p>
+    <div class="topology-grid">
+      <div class="topo-card">
+        <h3>系统代理模式 (应用层代理)</h3>
+        <p><strong>底层机制：</strong>在注册表中写入 <code>127.0.0.1:7890</code> 本地代理端口配置。</p>
+        <p><strong>局限性：</strong>属于应用层主动配合机制。Chrome、Edge 等遵循系统代理的浏览器能正常工作；但对于不读取注册表的软件（如 Git 命令行、Unity 游戏、Telegram 桌面版），流量依然会以明文直连本地宽带，导致连接超时。</p>
+      </div>
+
+      <div class="topo-card">
+        <h3>TUN 虚拟网卡模式 (三层网络全局接管)</h3>
+        <p><strong>底层机制：</strong>在系统内核安装虚拟以太网驱动，将默认网关路由指向虚拟网卡。</p>
+        <p><strong>核心优势：</strong>在 IP 网络层强制截获所有进出操作系统的网络数据包，无论是终端 CMD、PowerShell、大型多人在线游戏还是 WSL2 虚拟机，所有流量强制经过代理内核路由引擎，真正实现 100% 零穿透泄漏。</p>
+      </div>
+    </div>
+
+    <h3>3. MTU 阈值调优解决大包长连接超时卡死</h3>
+    <p>
+      在开启 TUN 虚拟网卡后，网络报文会被重新打包（加入代理协议头和 TLS 头）。若 TUN 网卡的 MTU 保持为以太网标准的 1500 字节，会导致数据包总长度超出物理网卡承载极限，在路由器网关处被强制丢弃，表现为网页文字秒开但大文件下载卡死。
+    </p>
+    <div class="code-block-box">
+      <p class="code-title">以管理员身份打开 Windows PowerShell，执行网卡 MTU 修正：</p>
+      <pre><code># 1. 查询当前系统所有网络适配器子接口名称与现有 MTU
+netsh interface ipv4 show subinterfaces
+
+# 2. 将 Mihomo 虚拟网卡 MTU 设置为最优稳定值 1400 (或 1280 国际保底值)
+netsh interface ipv4 set subinterface "Mihomo" mtu=1400 store=persistent
+
+# 3. 刷新系统 ARP 缓存并验证
+netsh interface ipv4 show subinterfaces</code></pre>
+    </div>
+
+    <h3>4. 进阶极客选择：v2rayN 多内核切换与路由树规则配置</h3>
+    <p>
+      对于习惯精细化管理多协议、多内核的高级技术人员，<strong>v2rayN</strong> 依然是 Windows 平台不可替代的利器：
+    </p>
+    <ul>
+      <li><strong>多内核自由挂载：</strong>v2rayN 允许用户在 Xray-core、Sing-box core 与 Mihomo core 之间自由无缝切换。对于特定采用 VLESS-Reality 架构的自建节点，切换至官方 Xray-core 能够获得最原生的多路复用稳定性。</li>
+      <li><strong>路由规则树（Routing Rule）高级分流：</strong>在“路由设置”中，建议开启“绕过大陆 (Whitelist)”或导入基于 Loyalsoldier 的经典规则库；将 DNS 解析模式设置为由远程核心递归解析，杜绝运营商明文劫持。</li>
+    </ul>
+  </section>
+
+  <!-- 模块五：macOS 苹果电脑端最佳实践指南 -->
+  <section class="section" id="macos-guide">
+    <div class="section-title">
+      <span class="step-num">05</span>
+      <h2>macOS 苹果电脑端最佳实践指南 (Clash Verge Rev / Surge)</h2>
+    </div>
+    <p>
+      macOS 拥有基于 BSD 架构的严格网络沙盒权限控制，且近年来 Apple 推送了“iCloud 私密转送 (Private Relay)”功能，极易与本地代理发生底层路由争抢。
+    </p>
+
+    <h3>1. Apple Silicon 原生优化与安装避坑</h3>
+    <ul>
+      <li><strong>架构精准匹配：</strong>M1、M2、M3、M4 芯片的 Mac 电脑，务必下载带有 <code>aarch64</code> 或 <code>arm64</code> 标识的 DMG 安装包，切勿下载 x64 架构通过 Rosetta 2 转译运行，原生编译版本可降低 40% 的运行内存开销，并显著减少发热延长续航。</li>
+      <li><strong>系统安全拦截授权：</strong>初次打开若提示“无法打开，因为 Apple 无法检查其是否包含恶意软件”，请进入“系统设置” &rarr; “隐私与安全性” &rarr; 滑动到底部点击“仍要打开”。</li>
+    </ul>
+
+    <h3>2. 彻底解决 macOS 局域网回环与 Apple 原生生态冲突</h3>
+    <p>
+      很多 Mac 用户开启代理后，发现隔空投送 (AirDrop) 搜索不到设备、接力 (Handoff) 失效或本地打印机无法连接。这是由于全局代理拦截了局域网广播包所致。
+    </p>
+    <div class="code-block-box">
+      <p class="code-title">在 Clash Verge Rev 配置文件的 rules 顶部加入局域网绝对放行白名单：</p>
+      <pre><code>rules:
+  # 优先放行本地私有局域网网段与 Apple 核心直连域名
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  - DOMAIN-SUFFIX,local,DIRECT
+  - DOMAIN-SUFFIX,apple.com,DIRECT
+  - DOMAIN-SUFFIX,icloud.com,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,PROXY</code></pre>
+    </div>
+
+    <h3>3. 商业旗舰 Surge Mac 与开源 Clash Verge Rev 深度对比</h3>
+    <p>
+      在苹果 macOS 生态中，售价高达 $49.99 的商业软件 <strong>Surge Mac</strong> 与完全免费开源的 <strong>Clash Verge Rev</strong> 经常被拿来比对：
+    </p>
+    <ul>
+      <li><strong>Surge Mac 的绝对统治力：</strong>Surge 拥有业内无可匹敌的轻量原生架构，其 Enhanced Mode 虚拟网卡由原作者基于 macOS 原生 NetworkExtension 框架深度打磨，对系统私密转送、蓝牙热点及多网络接口自动漂移支持极佳；内置的抓包调试器（Packet Capture）与 REPL 交互面板是高级 Web 开发者与出海企业运维的终极利器。</li>
+      <li><strong>Clash Verge Rev 的大众性价比优势：</strong>完全免费开源，基于社区活跃的 Mihomo 内核，支持更前沿的 Shadowsocks 2022、VLESS-Reality 及 Hysteria 2 协议（这些激进协议由于合规原因 Surge 官方坚决不予支持）。对于普通用户及影音重度爱好者，Clash Verge Rev 的性价比与协议兼容性完全超越 Surge。</li>
+    </ul>
+  </section>
+
+  <!-- 模块六：iOS / iPadOS 移动端生态深度配置与防断流指南 -->
+  <section class="section" id="ios-guide">
+    <div class="section-title">
+      <span class="step-num">06</span>
+      <h2>iOS / iPadOS 移动端生态深度配置与防息屏断流</h2>
+    </div>
+    <p>
+      由于苹果中国大陆区 App Store 的合规政策，主流代理客户端均未在国区上架。用户必须准备一个海外区（推荐美区或日区）的 Apple ID 进行下载安装。
+    </p>
+
+    <h3>1. 主流 iOS 代理工具选型天梯</h3>
+    <ul>
+      <li><strong>Shadowrocket (小火箭 - $2.99)：</strong>国内保有量最大的神级工具。UI 交互直观，全协议通吃（率先支持 Hysteria 2、TUIC v5、Shadowsocks 2022），更新维护极其频繁，普通用户无脑首选。</li>
+      <li><strong>Loon ($5.99)：</strong>近年来口碑极佳的高端新星。UI 遵循现代 iOS 原生设计规范，支持完善的插件化（Plugin）生态，针对流媒体解锁与广告拦截支持一键订阅安装。</li>
+      <li><strong>Quantumult X ($7.99)：</strong>老牌技术极客神器。底层纯 C 语言重写，拥有极高的网络吞吐效率，支持深度 MitM 抓包解密与复杂的 JavaScript 脚本重写，适合深度折腾玩家。</li>
+      <li><strong>Stash ($3.99)：</strong>Clash 规则体系在 iOS 平台的正统实现。支持直接读取并无缝运行桌面端 Clash 的 YAML 配置文件，拥有极佳的策略组可视化界面。</li>
+    </ul>
+
+    <h3>2. 彻底解决 iOS 锁屏休眠断网与掉线核心设置</h3>
+    <p>
+      苹果为了极致省电，在用户手机息屏锁屏后 3-5 分钟内，会切断大部分后台进程的网络活动，并挂起 NetworkExtension 虚拟网卡，导致微信收不到推送或后台下载中断：
+    </p>
+    <ol>
+      <li><strong>开启 On Demand (按需连接)：</strong>进入 Shadowrocket 设置 &rarr; 点击“按需连接” &rarr; 勾选“开启”。当系统从锁屏状态被点亮唤醒时，iOS 内核会在毫秒级内自动拉起代理隧道，彻底告别频繁手动开关代理。</li>
+      <li><strong>关闭系统“低电量模式”：</strong>低电量模式会强行降低后台刷新频率。日常使用建议保持关闭，以确保即时通信软件通知推送毫秒级触达。</li>
+    </ol>
+
+    <h3>3. 高阶玩家：Quantumult X 策略组与重写 (Rewrite) 脚本深度实战</h3>
+    <p>
+      对于追求极致自动化与界面定制的高阶用户，<strong>Quantumult X (圈 X)</strong> 提供了移动端最强悍的分流能力：
+    </p>
+    <ul>
+      <li><strong>静态策略组与动态 URL-Test 自动测速组：</strong>在配置文件中，可以通过 <code>static</code>、<code>available</code> 与 <code>url-test</code> 语法构建智能分流链条。例如将流媒体服务绑定至延迟最低的新加坡专线，而将日常浏览绑定至香港低延迟直连。</li>
+      <li><strong>MitM 根证书解密与应用防追踪：</strong>通过安装本地自签名 CA 根证书并在 iOS 系统“通用 &rarr; 关于本机 &rarr; 证书信任设置”中完全信任，圈 X 能够基于 JavaScript 脚本实时剥离应用启动页恶性广告并重写 HTTPS 请求，打造丝滑纯净的浏览体验。</li>
+    </ul>
+
+    <h3>4. 进阶技巧：利用 iOS“快捷指令”实现无感自动化切网</h3>
+    <p>
+      通过 iPhone 内置的“快捷指令 (Shortcuts)”App，可以创建自动化触发器：当手机离开家庭 Wi-Fi 或连接到蜂窝移动网络时，自动执行 Shadowrocket 或 Loon 的“启动代理”动作；当手机重新连接至已配置软路由的家庭 Wi-Fi 时，自动执行“断开代理”动作。这样既能避免双重代理产生的额外时延，又能彻底实现全天候无感续航。
+    </p>
+  </section>
+
+  <!-- 模块七：Android 安卓端生态与国产定制 ROM 杀后台保活全攻略 -->
+  <section class="section" id="android-guide">
+    <div class="section-title">
+      <span class="step-num">07</span>
+      <h2>Android 安卓端生态与国产定制 ROM 杀后台保活全攻略</h2>
+    </div>
+    <p>
+      Android 生态最大的挑战在于国内各大手机厂商（小米 HyperOS、华为鸿蒙、OPPO ColorOS、vivo OriginOS）推行了极其激进的后台进程冻结策略（墓碑机制），经常导致代理软件在锁屏后被系统静默清除。
+    </p>
+
+    <h3>1. 针对国产定制系统的“防杀后台四步锁”</h3>
+    <ol>
+      <li><strong>应用自启动权限：</strong>进入“设置” &rarr; “应用管理” &rarr; 找到 Clash Meta for Android &rarr; 开启“允许自启动”与“允许关联启动”。</li>
+      <li><strong>电池优化设置白名单：</strong>在应用信息中找到“省电策略 / 电池优化”，将默认的“智能推荐”更改为 <strong>“无限制”</strong> 或 <strong>“不优化”</strong>。</li>
+      <li><strong>多任务卡片加锁保护：</strong>划出手机多任务卡片界面，长按代理客户端卡片，点击弹出菜单中的“小锁”图标将其锁定，防止一键清理内存时被意外杀死。</li>
+      <li><strong>常驻通知栏激活：</strong>在客户端设置中开启“前台服务 (Foreground Service) 通知”，在通知栏保持一个轻量图标，利用 Android 系统规则提升进程优先级至前台级。</li>
+    </ol>
+
+    <h3>2. 分应用代理 (Split Tunneling) 隔离企业级配置</h3>
+    <p>
+      如果你需要确保国内日常 App（如企业微信、学习通、各大手机银行、王者荣耀国服）绝对不经过代理节点，可以直接在客户端开启分应用过滤：
+    </p>
+    <ul>
+      <li>进入客户端“设置” &rarr; “分应用代理 (Access Control)”。</li>
+      <li>模式选择 <strong>“仅允许被选中的应用走代理 (Allow List)”</strong>。</li>
+      <li>仅勾选 Chrome、YouTube、Twitter、Telegram、GitHub 等海外应用，其余未勾选的应用流量直接走本地公网网卡，彻底消除网银提示异地登录或国内游戏卡顿问题。</li>
+    </ul>
+
+    <h3>3. Android 私有 DNS (Private DNS) 冲突排查</h3>
+    <p>
+      在 Android 9.0 及以上版本中，系统引入了“私人 DNS (Private DNS - DNS over TLS)”功能。如果在此处手动填写了外部公共 DNS（如 <code>dns.google</code> 或 <code>dot.pub</code>），Android 系统会强行将所有应用的 DNS 查询通过 TLS 加密直接绕过本地代理虚拟网卡向公网发起。这会导致客户端的 Fake-IP 映射机制完全失效，表现为客户端已连接但所有海外网页均提示“连接超时”。<strong>排障操作：</strong>进入手机“设置” &rarr; “更多连接” &rarr; “私人 DNS”，将其设置为 <strong>“关闭”</strong> 或 <strong>“自动”</strong>。
+    </p>
+  </section>
+
+  <!-- 模块八：Linux 终端服务器与软路由（OpenWrt）透明代理指南 -->
+  <section class="section" id="linux-router-guide">
+    <div class="section-title">
+      <span class="step-num">08</span>
+      <h2>Linux 终端服务器与软路由（OpenWrt）透明代理指南</h2>
+    </div>
+    <p>
+      在无图形界面（Headless）的云服务器、深度学习算力机、群晖 NAS 以及家庭软路由网关中，代理配置更多依赖底层命令行与内核网络栈。
+    </p>
+
+    <h3>1. Linux 服务器命令行环境变量标准配置</h3>
+    <p>
+      在 Ubuntu / CentOS 终端中拉取 GitHub 仓库或下载 Docker 镜像时，通过在环境配置文件中注入标准代理变量即可实现瞬时提速：
+    </p>
+    <div class="code-block-box">
+      <p class="code-title">编辑 ~/.bashrc 或 /etc/profile，在文件末尾追加代理快捷函数：</p>
+      <pre><code># 设定代理端口别名（假设本地或局域网代理监听在 7890 端口）
+alias setproxy="export http_proxy=http://127.0.0.1:7890; export https_proxy=http://127.0.0.1:7890; export all_proxy=socks5://127.0.0.1:7890; echo '终端代理已成功激活'"
+alias unsetproxy="unset http_proxy https_proxy all_proxy; echo '终端代理已注销关闭'"
+
+# 测试终端代理是否生效
+# 运行 setproxy 之后执行：
+curl -i https://ipinfo.io</code></pre>
+    </div>
+
+    <h3>2. OpenWrt 软路由透明代理拓扑架构</h3>
+    <p>
+      家庭全屋部署软路由（如工控机软路由、GL.iNet 路由器）运行 OpenClash，能够让家庭所有终端（包括无代理客户端的 Apple TV、PS5 游戏主机、Nintendo Switch、智能音箱）实现全屋无感秒开：
+    </p>
+    <ul>
+      <li><strong>内核运行模式推荐：</strong>在 OpenClash 设置中选择 <strong>Fake-IP (TUN 模式)</strong>。此模式无需路由器对每个域名进行真实解析，内存与 CPU 开销最低，且能完美防御本地运营商的 DNS 劫持投毒。</li>
+      <li><strong>规避大屏电视流媒体锁区：</strong>Apple TV 与 Google TV 默认优先发起 IPv6 请求。若软路由未完整代理 IPv6，DNS 将泄露真实位置。在 OpenClash 高级设置中勾选 <strong>“禁止 IPv6 解析 (filter-aaaa)”</strong>，强制所有大屏设备走纯 IPv4 加密通道。</li>
+    </ul>
+
+    <h3>3. 开发者专项：Docker 守护进程与容器全局代理加速</h3>
+    <p>
+      在 Linux 服务器进行云原生开发时，<code>docker pull</code> 镜像拉取超时是极高频的痛点。因为 Docker 守护进程独立于用户会话运行，普通的终端 <code>export http_proxy</code> 对 Docker 无效：
+    </p>
+    <div class="code-block-box">
+      <p class="code-title">创建 /etc/systemd/system/docker.service.d/http-proxy.conf 注入代理：</p>
+      <pre><code>[Service]
+Environment="HTTP_PROXY=http://127.0.0.1:7890"
+Environment="HTTPS_PROXY=http://127.0.0.1:7890"
+Environment="NO_PROXY=localhost,127.0.0.1,docker-registry.somecorporation.com"
+
+# 重新加载守护进程并重启 Docker 服务
+sudo systemctl daemon-reload
+sudo systemctl restart docker</code></pre>
+    </div>
+  </section>
+
+  <!-- 模块九：订阅链接安全防护、格式转换与防盗刷指南 -->
+  <section class="section" id="subconverter-security">
+    <div class="section-title">
+      <span class="step-num">09</span>
+      <h2>订阅链接安全防护、格式转换与防盗刷指南</h2>
+    </div>
+    <p>
+      订阅链接本质上是一个包含了你专属账号认证密钥（Token）的加密 URL。通过该链接，任何人都可以在毫秒级内获取你的节点 IP、加密密码及传输协议。
+    </p>
+
+    <h3>1. 公共订阅转换网站（Subconverter）的黑产后门陷阱</h3>
+    <p>
+      很多新手用户在需要将普通 SS 节点转换为 Clash 格式时，习惯在搜索引擎中随意打开公共订阅转换网页。这潜藏着极其严重的黑产风险：
+    </p>
+    <ul>
+      <li><strong>节点 Token 批量窃取：</strong>部分公共转换后端在处理请求时，会在服务器数据库静默记录每一个用户的原始订阅链接。这些 Token 会被转手倒卖或用于搭建黑产爬虫代理池，导致你的套餐流量在几天内被莫名耗尽。</li>
+      <li><strong>节点挟持与中间人钓鱼：</strong>黑心后端会在转换生成的 YAML 规则中，悄悄插入由攻击者控制的恶意中间人节点（MITM），并将网银或加密货币交易所的域名重定向至该节点，实施精准撞库钓鱼。</li>
+    </ul>
+
+    <h3>2. 官方原生与安全本地转换最佳解法</h3>
+    <ol>
+      <li><strong>优先使用机场原生提供的客户端专用订阅：</strong>成熟正规的机场（如光速云、暮光加速等）在后台均提供“一键导入 Clash”、“一键导入 Shadowrocket”的原生专用链接，无需经过任何第三方二次转换。</li>
+      <li><strong>使用客户端内置原生解析器：</strong>现代客户端（如 Clash Verge Rev、Sing-box、Shadowrocket）均具备极强的原生格式自适应能力，可直接粘贴通用 Base64 订阅链接并由客户端本地内核在离线状态下直接解析。</li>
+      <li><strong>本地私有化 Docker 订阅转换搭建（100% 隐私零泄漏）：</strong>如果你必须使用特定规则模板转换，可以通过本地终端一条命令启动开源 Subconverter 容器：<code>docker run -d --name subconverter -p 25500:25500 tindy2013/subconverter:latest</code>。所有节点 Token 完全在你的本地内存中完成计算，绝无外部传输风险。</li>
+    </ol>
+  </section>
+
+  <!-- 模块十：客户端常见 8 大报错与排障决策树 -->
+  <section class="section" id="troubleshooting-tree">
+    <div class="section-title">
+      <span class="step-num">10</span>
+      <h2>客户端常见 8 大报错排障决策树</h2>
+    </div>
+    <p>
+      当你在使用代理客户端过程中遇到错误弹窗时，请对照以下经过数万次工单验证的标准排障路线图定位解决：
+    </p>
+
+    <div class="card-grid">
+      <div class="summary-box">
+        <h4>报错 1：Configure System Proxy Failed (设置系统代理失败)</h4>
+        <p><strong>根本原因：</strong>本地注册表被杀毒软件锁定，或第三方网络管家占用了代理设置。</p>
+        <p><strong>解决步骤：</strong>以管理员身份重启软件；进入 Windows 设置 &rarr; 网络和 Internet &rarr; 代理，手动关闭“使用代理服务器”，随后在客户端重新开启系统代理。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>报错 2：TUN Mode Create Interface Failed (创建网卡失败)</h4>
+        <p><strong>根本原因：</strong>系统缺少 Wintun 驱动权限，或未安装服务模式 (Service Mode)。</p>
+        <p><strong>解决步骤：</strong>在客户端设置中先点击“卸载服务模式”，随后重新点击“安装服务模式”，弹出 UAC 窗口时务必点击“允许”；如果报错依然存在，关闭杀毒软件后重试。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>报错 3：YAML Parse Error / Invalid Configuration (配置解析失败)</h4>
+        <p><strong>根本原因：</strong>导入的订阅链接返回了空内容或 HTTP 500 报错，文件格式损坏。</p>
+        <p><strong>解决步骤：</strong>检查套餐是否到期；将订阅链接直接复制到浏览器地址栏回车，查看是否有真实的节点配置文本；若浏览器打不开，说明机场订阅接口临时维护。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>报错 4：DNS_PROBE_FINISHED_NO_INTERNET (无网络连接)</h4>
+        <p><strong>根本原因：</strong>异常关机或客户端意外崩溃，导致系统代理未正常退出，网络保留在无效端口。</p>
+        <p><strong>解决步骤：</strong>在管理员 PowerShell 输入 <code>ipconfig /flushdns</code> 刷新 DNS；在 Windows 代理设置中彻底关闭手动代理开关即可瞬间恢复正常。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>报错 5：SSL Handshake Failed / Certificate Expired (证书失效)</h4>
+        <p><strong>根本原因：</strong>本地设备系统时钟与北京标准时间偏差超过 90 秒，TLS 握手校验失败。</p>
+        <p><strong>解决步骤：</strong>打开电脑“日期和时间”设置，点击“立即同步”校准时钟，时间同步后节点握手立即恢复正常。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>报错 6：订阅更新提示 403 Forbidden / 401 Unauthorized</h4>
+        <p><strong>根本原因：</strong>机场套餐流量已耗尽被停机，或该订阅 Token 已在后台被重置废止。</p>
+        <p><strong>解决步骤：</strong>登录机场官网后台查看套餐剩余流量状态；在后台点击“重置订阅信息”，将生成的最全新链接重新导入客户端。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>报错 7：Allow LAN (局域网共享) 开启后其他设备连不上</h4>
+        <p><strong>根本原因：</strong>Windows 防火墙拦截了局域网入站请求，或未放行本地 7890 端口。</p>
+        <p><strong>解决步骤：</strong>在 Windows 防火墙高级设置中，添加一条“入站规则”，放行 TCP 端口 7890；确保两台设备处于同一个 Wi-Fi 局域网且 IP 网段一致。</p>
+      </div>
+
+      <div class="summary-box">
+        <h4>报错 8：客户端内存暴涨至 1GB+ 闪退崩溃</h4>
+        <p><strong>根本原因：</strong>订阅了过多冗余的几十万条外部第三方规则集，单次解析内存溢出。</p>
+        <p><strong>解决步骤：</strong>精简外部规则集，优先使用官方默认的精简分流配置；在客户端设置中将日志等级由 <code>debug</code> 调降为 <code>info</code> 或 <code>error</code>，关闭连接会话明细捕获。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 模块十一：12 大客户端核心技术 FAQ -->
+  <section class="section" id="client-faq">
+    <div class="section-title">
+      <span class="step-num">11</span>
+      <h2>12 大代理客户端核心技术与日常使用常见问题 (FAQ)</h2>
+    </div>
+
+    <div class="faq-accordion">
+      <details class="faq-item" open>
+        <summary class="faq-question">为什么强烈建议使用第三方开源客户端，而不是机场自研定制客户端？</summary>
+        <div class="faq-answer">
+          <p>
+            <strong>结论：开源客户端具备更高的安全性、跨机场容灾能力与精细的分流控制。</strong><br />
+            第三方开源客户端（如 Clash Verge Rev、Sing-box）代码公开透明，全球技术社区共同审查，绝无恶意后门、劫持证书或静默挖矿可能；支持同时导入多家机场订阅，实现跨服务商故障容灾；支持精确的分流规则与广告拦截。而机场自研客户端通常闭源混淆，只能登录单一机场，一旦机场跑路或线路故障，客户端直接瘫痪。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">系统代理模式 (System Proxy) 与 TUN 虚拟网卡模式有何本质不同？</summary>
+        <div class="faq-answer">
+          <p>
+            <strong>系统代理模式：</strong>仅在操作系统应用层修改 HTTP/HTTPS 环境变量，只对遵循系统代理的浏览器和部分桌面软件生效，命令行终端（Git、SSH）、UWP 应用及在线游戏完全无法被代理。<br />
+            <strong>TUN 虚拟网卡模式：</strong>在操作系统内虚拟一张物理网卡，在三层网络（网络层）强制拦截全部进出数据包，无论是终端命令行还是大型 3D 联机游戏，全部经过代理内核分流，实现真正的全局无穿透接管。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">开启代理客户端后微信或国内网页打不开怎么解决？</summary>
+        <div class="faq-answer">
+          <p>
+            这通常是由于客户端被误设置为了“全局代理 (Global)”模式，导致国内访问全部绕道海外。请在客户端内将路由模式切换为“规则分流 (Rule)”，并确保规则集中启用了针对 <code>geoip:cn</code> 和 <code>geosite:cn</code> 的直连（Direct）规则；同时在本地 DNS 设置中配置国内常用 DNS（如 223.5.5.5）以保证国内域名解析不绕道。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">在公共订阅转换网站（Subconverter）转换链接会有什么安全风险？</summary>
+        <div class="faq-answer">
+          <p>
+            公共第三方订阅转换网站的服务器后端能够完整记录你的订阅 URL、节点 Token 及所有服务器 IP。恶意运营者会批量收集这些 Token 盗刷你的流量，甚至替换节点信息植入中间人抓包配置。强烈建议使用客户端内置的原生订阅解析功能，或在本地 Docker 中自建转换后端。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">iOS 端 Shadowrocket（小火箭）息屏后经常断连是什么原因？</summary>
+        <div class="faq-answer">
+          <p>
+            iOS 激进的后台电池管理机制会在锁屏后挂起 VPN 网络进程。解决方法是在小火箭设置中开启“按需连接 (On Demand)”，并关闭 iPhone 的“低电量模式”，确保手机从休眠唤醒后系统瞬间恢复网络隧道。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">Android 安卓手机频繁断流掉线如何彻底排查？</summary>
+        <div class="faq-answer">
+          <p>
+            国产定制系统（如小米澎湃、华为鸿蒙、OPPO ColorOS、vivo OriginOS）会自动杀死后台 VPN 进程。必须在系统设置中为代理软件开启：1. 允许后台自启动；2. 电池优化设置为“无限制”；3. 在多任务后台卡片界面对该应用执行“加锁保护”。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">macOS 上使用 Clash Verge Rev 提示需要授权安装服务模式怎么处理？</summary>
+        <div class="faq-answer">
+          <p>
+            TUN 虚拟网卡需要操作系统内核级权限。在 macOS 设置中点击“安装服务模式 (Service Mode)”，在系统弹出的安全窗口中输入开机密码授权安装 Helper 守护进程即可；同时需确认系统“隐私与安全性”中已允许网络扩展组件运行。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">客户端测出的延迟只有 20ms，为什么实际打开网页非常缓慢？</summary>
+        <div class="faq-answer">
+          <p>
+            客户端默认的测速通常是 TCP Ping，测出的仅仅是本地电脑连接到机场位于国内（如深圳、上海）中转入口服务器的耗时，完全没有反映境外跨境海缆和海外机房的真实延迟。真实网页打开速度必须参考本站基于完整端到端长周期的晚高峰实测数据。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">如何在软路由（OpenWrt）上配置透明代理供大屏电视和游戏机使用？</summary>
+        <div class="faq-answer">
+          <p>
+            在软路由中安装 OpenClash 或 PassWall 插件，工作模式选择 TPROXY 或 REDIR-HOST/Fake-IP 混合模式，开启局域网 DNS 劫持；针对大屏电视（Apple TV、Google TV）必须在客户端 DNS 配置中启用 filter-aaaa 过滤 IPv6 解析，防止因公网 IPv6 直连泄露位置导致流媒体锁区。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">Clash for Windows 停更后目前 Windows 桌面端最好的替代品是什么？</summary>
+        <div class="faq-answer">
+          <p>
+            目前最佳替代方案是开源的 Clash Verge Rev。它基于活跃维护的 Clash Meta (Mihomo) 内核重构，原生支持完整的 TUN 模式、Shadowsocks 2022、VLESS-Reality 及 Hysteria 2 协议，界面现代化且完全开源无广告，支持一键无缝导入旧版 Clash 订阅。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">什么是代理内核中的 Fake-IP 模式？它有什么独特优势？</summary>
+        <div class="faq-answer">
+          <p>
+            Fake-IP 模式下，客户端在接收到本地 DNS 查询时不向公网发送真实解析请求，而是立即在保留网段（如 198.18.0.1/16）返回一个虚拟 IP 给系统，实现 0 毫秒即时响应，彻底杜绝本地 DNS 污染劫持；真实域名随加密隧道发送至海外落地服务器进行安全递归解析。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">使用代理客户端会导致网络安全软件或杀毒软件报警吗？</summary>
+        <div class="faq-answer">
+          <p>
+            部分第三方通用客户端由于需要创建虚拟网卡（TUN/TAP）并修改系统网络路由表，可能会触发火绒或 360 等安全软件的“网络防护警告”。只要下载源来自官方 GitHub Releases 发布页，均属正常系统级网络配置行为，添加信任白名单即可放心使用。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">客户端日志提示“Too many open files”报错如何解决？</summary>
+        <div class="faq-answer">
+          <p>
+            这代表操作系统的单个进程最大并发文件句柄数（File Descriptors）达到了上限。在 macOS 或 Linux 终端中，系统默认的 ulimit 仅为 256 或 1024。在终端运行 <code>ulimit -n 65535</code> 调大句柄数；Windows 用户请在客户端设置中关闭不必要的连接抓包日志捕获，调小并行测速并发数。
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">客户端策略组的“URL-Test 健康检查”会偷跑我的套餐流量吗？</summary>
+        <div class="faq-answer">
+          <p>
+            健康检查每次仅向轻量测速地址（如 <code>http://www.gstatic.com/generate_204</code>）发送一个极其微小的 HTTP HEAD 探测包，单次消耗流量通常小于 1KB。即使客户端每 300 秒对几十个节点自动探测一次，全月累计消耗流量也不足 50MB，对套餐几乎毫无影响，却能保证在节点故障时毫秒级自动切换。
+          </p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 底部引导入口 -->
+  <section class="section">
+    <div class="summary-box" style="text-align: center; padding: 2.5rem 1.5rem;">
+      <h3>客户端已就绪？选择与它最匹配的高品质专线节点</h3>
+      <p style="max-width: 680px; margin: 0 auto 1.5rem;">
+        一个优秀的客户端需要搭配一条低延迟、零丢包的优质线路。查阅本站经过晚高峰严格测速的精选机场矩阵，开启顺畅网络体验。
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a class="button action-btn" href="/works/">查阅精选评测排名 &rarr;</a>
+        <a class="button action-btn" href="/brands/">检索42家品牌完整库 &rarr;</a>
+        <a class="button action-btn" href="/search/">使用站内智能搜索 &rarr;</a>
+        <a class="button action-btn" href="/about/">查阅测速准则白皮书 &rarr;</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--baseline) * 2);
+    padding-bottom: calc(var(--baseline) * 2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .toc-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 0.88rem;
+  }
+
+  .toc-label {
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+
+  .toc-pills a {
+    color: var(--color-muted);
+    text-decoration: none;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+  }
+
+  .toc-pills a:hover {
+    color: var(--color-fg);
+    border-color: var(--color-fg);
+  }
+
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.5rem;
+  }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-accent, #c95135);
+  }
+
+  .section-title h2 {
+    margin-bottom: 0;
+  }
+
+  .section-desc {
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .summary-box, .guide-card, .topo-card {
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .summary-box h3, .guide-card h4, .topo-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: var(--color-fg);
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0;
+  }
+
+  .badge {
+    font-size: 0.78rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    background: var(--color-border);
+    color: var(--color-fg);
+  }
+
+  .badge.blue {
+    background: rgba(30, 110, 230, 0.12);
+    color: #1a62cc;
+    font-weight: 600;
+    border: 1px solid rgba(30, 110, 230, 0.25);
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    color: #ffffff !important;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    background: var(--color-fg);
+    transition: opacity 0.2s ease;
+  }
+
+  .action-btn:hover {
+    opacity: 0.88;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+  }
+
+  .observatory-table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    text-align: left;
+  }
+
+  .observatory-table th {
+    background: var(--color-surface, rgba(0, 0, 0, 0.04));
+    padding: 0.85rem 1rem;
+    font-weight: 650;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  .observatory-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .observatory-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .observatory-table tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.015);
+  }
+
+  .tag-status {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .tag-status.measured {
+    background: rgba(16, 149, 193, 0.12);
+    color: #0b7285;
+    border: 1px solid rgba(16, 149, 193, 0.3);
+  }
+
+  .tag-status.vendor {
+    background: rgba(100, 110, 120, 0.1);
+    color: #495057;
+    border: 1px solid rgba(100, 110, 120, 0.25);
+  }
+
+  .note-box {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border-left: 4px solid var(--color-accent, #c95135);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+
+  .topology-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .code-block-box {
+    background: #181a1f;
+    color: #abb2bf;
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    margin: 1.25rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    overflow-x: auto;
+  }
+
+  .code-title {
+    color: #e5c07b;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .code-block-box pre {
+    margin: 0;
+  }
+
+  .code-block-box code {
+    font-family: inherit;
+    color: inherit;
+  }
+
+  .faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .faq-item {
+    background: var(--color-surface, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+
+  .faq-item[open] {
+    border-color: var(--color-fg);
+  }
+
+  .faq-question {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    background: var(--color-surface, rgba(0, 0, 0, 0.03));
+    user-select: none;
+    outline: none;
+  }
+
+  .faq-question:hover {
+    color: var(--color-accent, #c95135);
+  }
+
+  .faq-answer {
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .faq-answer p {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .section-title {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+  }
+</style>
+`;
+
+fs.writeFileSync(clientsPath, content, 'utf8');
+console.log('Successfully written expanded clients page to', clientsPath);
