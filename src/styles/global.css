@@ -357,12 +357,16 @@ p {
 }
 
 .button,
-a.button {
+a.button,
+.button-primary,
+a.button-primary,
+.action-btn,
+a.action-btn {
   display: inline-flex;
   min-height: 2.85rem;
   align-items: center;
   justify-content: center;
-  padding: 0.72rem 1.05rem;
+  padding: 0.72rem 1.15rem;
   border: 1px solid var(--color-accent);
   background: var(--color-accent);
   color: #ffffff !important;
@@ -377,39 +381,32 @@ a.button {
 }
 
 .button:hover,
-a.button:hover {
-  border-color: var(--color-accent-hover);
-  background: var(--color-accent-hover);
-  color: #ffffff !important;
-}
-
-.action-btn,
-a.action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-accent) !important;
-  border: 1px solid var(--color-accent) !important;
-  color: #ffffff !important;
-  font-weight: 700;
-  text-decoration: none !important;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 180ms ease, border-color 180ms ease;
-}
-
+a.button:hover,
+.button-primary:hover,
+a.button-primary:hover,
 .action-btn:hover,
 a.action-btn:hover {
-  background: var(--color-accent-hover) !important;
   border-color: var(--color-accent-hover) !important;
+  background: var(--color-accent-hover) !important;
   color: #ffffff !important;
 }
 
+/* Secondary / Outline Button: 镂空红框红字，悬停变红底白字 */
+.button.secondary,
+a.button.secondary,
+.button-secondary,
+a.button-secondary,
+.button-outline,
+a.button-outline,
 .promo-btn,
-a.promo-btn {
+a.promo-btn,
+.button.promo-btn,
+a.button.promo-btn {
   display: inline-flex;
+  min-height: 2.85rem;
   align-items: center;
   justify-content: center;
+  padding: 0.72rem 1.15rem;
   background: transparent !important;
   border: 1px solid var(--color-accent) !important;
   color: var(--color-accent) !important;
@@ -420,10 +417,102 @@ a.promo-btn {
   transition: all 180ms ease;
 }
 
+.button.secondary:hover,
+a.button.secondary:hover,
+.button-secondary:hover,
+a.button-secondary:hover,
+.button-outline:hover,
+a.button-outline:hover,
 .promo-btn:hover,
-a.promo-btn:hover {
-  background: var(--color-accent-soft) !important;
-  color: var(--color-accent-hover) !important;
+a.promo-btn:hover,
+.button.promo-btn:hover,
+a.button.promo-btn:hover {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: #ffffff !important;
+}
+
+/* Neutral / Subtle Button: 浅色卡片/灰边框/正常深色文字，绝不是白色文字 */
+.button.neutral,
+a.button.neutral,
+.button-neutral,
+a.button-neutral,
+.button-subtle,
+a.button-subtle {
+  display: inline-flex;
+  min-height: 2.85rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.72rem 1.15rem;
+  background: var(--color-surface, #f5f5f4) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-fg, #2b2b2b) !important;
+  font-weight: 650;
+  text-decoration: none !important;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.button.neutral:hover,
+a.button.neutral:hover,
+.button-neutral:hover,
+a.button-neutral:hover,
+.button-subtle:hover,
+a.button-subtle:hover {
+  background: var(--color-accent-soft, rgba(201,81,53,0.1)) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent) !important;
+}
+
+/* 高对比度卡片按钮保障规则：杜绝白底白字与浅底看不清 */
+.summary-box .button,
+.summary-box a.button,
+.summary-box .action-btn,
+.summary-box a.action-btn,
+.guide-card .button,
+.topo-card .button {
+  background: var(--color-accent) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--color-accent) !important;
+}
+
+.summary-box .button:hover,
+.summary-box a.button:hover,
+.summary-box .action-btn:hover,
+.summary-box a.action-btn:hover {
+  background: var(--color-accent-hover) !important;
+  border-color: var(--color-accent-hover) !important;
+  color: #ffffff !important;
+}
+
+.summary-box .button.neutral,
+.summary-box a.button.neutral,
+.guide-card .button.neutral,
+.topo-card .button.neutral {
+  background: var(--color-surface, #f5f5f4) !important;
+  color: var(--color-fg, #2b2b2b) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.summary-box .button.secondary,
+.summary-box a.button.secondary,
+.summary-box .promo-btn,
+.summary-box a.promo-btn,
+.profile-actions .promo-btn,
+.profile-actions a.promo-btn {
+  background: transparent !important;
+  color: var(--color-accent) !important;
+  border: 1px solid var(--color-accent) !important;
+}
+
+.summary-box .promo-btn:hover,
+.summary-box a.promo-btn:hover,
+.profile-actions .promo-btn:hover,
+.profile-actions a.promo-btn:hover {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: #ffffff !important;
 }
 
 .text-link {
